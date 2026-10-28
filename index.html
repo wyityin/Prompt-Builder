@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Learning Buddy – Prompt Builder</title>
+<meta name="description" content="Build a clear, thoughtful prompt for an AI learning buddy using RTCLF. English, Bahasa Melayu and 中文. No login, no tracking, nothing stored.">
+<style>
+  :root{
+    --blue:#DCEEFF; --yellow:#EAE957; --white:#FFFFFF; --ink:#24415C; --green:#DDF3E4;
+    --ink-soft:#4A647C; --line:#B9D3EA; --red:#9C2B2B; --red-bg:#FDE9E7; --green-ink:#1D6B3A;
+    --radius:20px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--blue);color:var(--ink);font-family:"Trebuchet MS","Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans CJK SC",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:18px;line-height:1.55}
+  .skip{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:0 0 12px 0;z-index:10}
+  .skip:focus{left:0}
+  header{background:var(--yellow);border-bottom:6px solid var(--ink);padding:1.4rem 1rem 1.6rem}
+  .wrap{max-width:900px;margin:0 auto;padding:0 1rem}
+  header .wrap{padding:0}
+  .brand{display:flex;gap:1rem;align-items:center;min-width:0}
+  .logo{flex:none;width:64px;height:64px;border-radius:50%;background:var(--white);border:4px solid var(--ink);display:grid;place-items:center;font-size:34px}
+  h1{margin:0;font-size:clamp(1.5rem,4.6vw,2.3rem);line-height:1.15}
+  .tag{margin:.2rem 0 0;font-size:1.05rem}
+  main.wrap{padding:1.6rem 1rem 3rem}
+  .card{background:var(--white);border-radius:var(--radius);border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink);padding:1.4rem 1.4rem 1.6rem;margin:0 0 1.8rem}
+  .card h2{margin:0 0 .3rem;font-size:1.4rem;line-height:1.25;display:flex;gap:.6rem;align-items:center}
+  .num{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);display:grid;place-items:center;font-size:1rem;font-weight:700}
+  .intro p{margin:.5rem 0}
+  .rtclf{margin-top:1rem;background:var(--blue);border-radius:16px;padding:1rem 1.1rem;border:3px dashed var(--ink)}
+  .rtclf h3{margin:0 0 .6rem;font-size:1.15rem}
+  .rtclf ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:.7rem}
+  .rtclf li{background:var(--white);border-radius:14px;padding:.7rem .8rem;border:2px solid var(--line)}
+  .rtclf .l{display:inline-grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);font-weight:700;margin-right:.4rem;vertical-align:middle}
+  .rtclf .n{font-weight:700;vertical-align:middle}
+  .rtclf .q{display:block;font-size:.95rem;margin-top:.35rem;line-height:1.4}
+  .rtclf .fill{margin:.7rem 0 0;font-size:.98rem}
+  .privacy{display:flex;gap:.6rem;align-items:flex-start;background:var(--green);border-radius:14px;padding:.7rem 1rem;margin-top:.9rem;font-size:1rem}
+  .part{margin-top:1.8rem;padding-top:1.1rem;border-top:3px dashed var(--line)}
+  .part:first-of-type{margin-top:1rem;border-top:0;padding-top:0}
+  .part h3{margin:0;font-size:1.25rem;display:flex;flex-wrap:wrap;gap:.35rem .6rem;align-items:center}
+  .part h3 .l{display:inline-grid;place-items:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);font-weight:700;font-size:1rem}
+  .part h3 .sub{font-size:.98rem;font-weight:400;color:var(--ink-soft)}
+  .part fieldset:first-of-type{margin-top:.8rem}
+  fieldset{border:0;margin:1.3rem 0 0;padding:0;min-width:0}
+  legend,label.lbl{display:block;font-weight:700;font-size:1.1rem;padding:0;margin-bottom:.45rem}
+  .req{color:var(--red);font-weight:700}
+  .help{font-size:.95rem;color:var(--ink-soft);margin:0 0 .5rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.6rem}
+  .chip{position:relative}
+  .chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .chip label{display:flex;align-items:center;gap:.45rem;min-height:48px;padding:.5rem 1rem;background:var(--white);border:3px solid var(--line);border-radius:999px;cursor:pointer;font-size:1rem;font-weight:600;line-height:1.25}
+  .chip input:hover + label{border-color:var(--ink)}
+  .chip input:checked + label{background:var(--yellow);border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+  .chip input:checked + label::before{content:"\2713";font-weight:700}
+  .chip input:focus-visible + label{outline:4px solid var(--ink);outline-offset:3px}
+  .chips.stack .chip{flex:1 1 100%}
+  .chips.stack .chip label{border-radius:16px}
+  input[type=text],textarea{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--white);border:3px solid var(--line);border-radius:14px;padding:.7rem .9rem}
+  textarea{resize:vertical;min-height:90px}
+  input[type=text]:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,.check input:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+  input[type=text]:hover,textarea:hover{border-color:var(--ink)}
+  ::placeholder{color:#5B7186;opacity:1}
+  .err{display:none;margin:.45rem 0 0;color:var(--red);font-weight:700;font-size:.98rem}
+  .invalid .err{display:block}
+  .invalid input[type=text]{border-color:var(--red);background:var(--red-bg)}
+  .invalid .chip label{border-color:#E5A7A0}
+  .summary{display:none;background:var(--red-bg);border:3px solid var(--red);border-radius:14px;padding:.8rem 1rem;margin:1.2rem 0 0}
+  .summary.show{display:block}
+  .summary h3{margin:0 0 .3rem;font-size:1.05rem;color:var(--red)}
+  .summary ul{margin:.2rem 0 0 1.2rem;padding:0}
+  .summary a{color:var(--red);font-weight:700}
+  .count{font-size:.9rem;color:var(--ink-soft);text-align:right;margin:.2rem 0 0}
+  .btns{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.4rem}
+  button{font:inherit;font-weight:700;font-size:1.05rem;min-height:50px;padding:.6rem 1.3rem;border-radius:999px;border:3px solid var(--ink);color:var(--ink);background:var(--white);cursor:pointer;box-shadow:0 4px 0 var(--ink);display:inline-flex;align-items:center;gap:.5rem;justify-content:center}
+  button:hover{transform:translateY(-1px)}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+  button.primary{background:var(--yellow)}
+  button.blue{background:var(--blue)}
+  button.big{font-size:1.2rem;min-height:56px}
+  .status{min-height:1.6rem;margin:.9rem 0 0;font-weight:700}
+  .status.ok{background:var(--green);color:var(--green-ink);border-radius:12px;padding:.6rem .9rem}
+  .status.warn{background:var(--red-bg);color:var(--red);border-radius:12px;padding:.6rem .9rem}
+  .status:empty{padding:0;background:none}
+  #output{min-height:340px;font-family:Consolas,"Courier New","Microsoft YaHei","PingFang SC","Noto Sans SC",monospace;font-size:.98rem;line-height:1.55;background:#FBFDFF}
+  .note{font-size:.95rem;color:var(--ink-soft)}
+  .improve{margin-top:1.2rem;background:var(--blue);border-radius:16px;padding:1rem 1.1rem;border:3px dashed var(--ink)}
+  .improve h3{margin:0 0 .4rem;font-size:1.1rem}
+  .improve ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .improve li{display:flex;gap:.7rem;align-items:flex-start;justify-content:space-between;background:var(--white);border-radius:12px;padding:.6rem .8rem;margin:.5rem 0}
+  .improve li.good{background:var(--green)}
+  .improve li button{flex:none;min-height:40px;font-size:.95rem;padding:.3rem .9rem;box-shadow:0 3px 0 var(--ink)}
+  .checks{list-style:none;margin:1rem 0 0;padding:0}
+  .check{display:flex;gap:.7rem;align-items:flex-start;padding:.55rem .7rem;border-radius:12px}
+  .check:hover{background:var(--blue)}
+  .check input{flex:none;width:28px;height:28px;margin:.1rem 0 0;accent-color:var(--ink);cursor:pointer}
+  .check label{cursor:pointer;font-weight:600}
+  .reflect label.lbl{margin-top:1.1rem}
+  .how{background:var(--yellow)}
+  .how ol{margin:.5rem 0 0 1.3rem;padding:0}
+  footer{text-align:center;font-size:.95rem;padding:0 1rem 2rem;color:var(--ink-soft)}
+  [hidden]{display:none!important}
+  .sr{position:absolute;left:-9999px}
+  @media (max-width:560px){
+    body{font-size:17px}
+    .card{padding:1.1rem 1rem 1.3rem}
+    .btns button{flex:1 1 100%}
+    .logo{width:52px;height:52px;font-size:28px}
+    .improve li{flex-direction:column}
+    .improve li button{align-self:flex-start}
+      }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}button:hover{transform:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#form-card" data-i18n="skip">Skip to the prompt builder</a>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🤖</div>
+      <div>
+        <h1 data-i18n="title">AI Learning Buddy – Prompt Builder</h1>
+        <p class="tag" data-i18n="tagline">Ask better questions. Think harder. Learn more.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <noscript><div class="card"><strong>This tool needs JavaScript.</strong> Please turn JavaScript on in your browser and reload the page.</div></noscript>
+
+  <section class="card intro" aria-labelledby="intro-h">
+    <h2 id="intro-h"><span aria-hidden="true">👋</span> <span data-i18n="welcome">Welcome!</span></h2>
+    <p data-i18n="intro1"></p>
+    <div class="rtclf">
+      <h3 data-i18n="rtclfH"></h3>
+      <ul id="rtclf-list"></ul>
+      <p class="fill" data-i18n="rtclfFill"></p>
+    </div>
+    <p data-i18n="intro2"></p>
+    <p class="privacy"><span aria-hidden="true">🔒</span><span><strong data-i18n="privLead"></strong> <span data-i18n="privText"></span></span></p>
+  </section>
+
+  <section class="card" id="form-card" aria-labelledby="form-h">
+    <h2 id="form-h"><span class="num" aria-hidden="true">1</span> <span data-i18n="formH"></span></h2>
+    <p class="help"><span class="req">*</span> <span data-i18n="reqNote"></span></p>
+
+    <div class="summary" id="summary" role="alert" tabindex="-1" aria-live="assertive"></div>
+
+    <form id="builder" novalidate autocomplete="off">
+
+      <section class="part" aria-labelledby="part-R">
+        <h3 id="part-R"><span class="l" aria-hidden="true">R</span> Role <span class="sub">Who should AI be?</span></h3>
+        <div id="g-role"></div>
+      </section>
+
+      <section class="part" aria-labelledby="part-T">
+        <h3 id="part-T"><span class="l" aria-hidden="true">T</span> Task <span class="sub">What should AI do?</span></h3>
+        <div id="g-goal"></div>
+        <div id="g-approach"></div>
+      </section>
+
+      <section class="part" aria-labelledby="part-C">
+        <h3 id="part-C"><span class="l" aria-hidden="true">C</span> Context <span class="sub">What does AI need to know?</span></h3>
+        <div id="g-subject"></div>
+
+        <div id="f-subjectOther" hidden style="margin-top:1rem">
+          <label class="lbl" for="subjectOther"><span data-i18n="otherLabel"></span> <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="subjectOther" maxlength="60" data-i18n-ph="otherPh" aria-describedby="e-subjectOther">
+          <p class="err" id="e-subjectOther" data-i18n="e_subjectOther"></p>
+        </div>
+
+        <div id="f-topic" style="margin-top:1.3rem">
+          <label class="lbl" for="topic"><span data-i18n="topicLabel"></span> <span class="req" aria-hidden="true">*</span></label>
+          <p class="help" id="h-topic" data-i18n="topicHelp"></p>
+          <input type="text" id="topic" maxlength="300" data-i18n-ph="topicPh" aria-describedby="h-topic e-topic">
+          <p class="err" id="e-topic" data-i18n="e_topic"></p>
+        </div>
+
+        <div style="margin-top:1.3rem">
+          <label class="lbl" for="extra"><span data-i18n="extraLabel"></span> <span class="note" data-i18n="optional"></span></label>
+          <p class="help" id="h-extra" data-i18n="extraHelp"></p>
+          <textarea id="extra" maxlength="500" rows="3" aria-describedby="h-extra extra-count"></textarea>
+          <p class="count" id="extra-count" aria-hidden="true">0 / 500</p>
+        </div>
+      </section>
+
+      <section class="part" aria-labelledby="part-L">
+        <h3 id="part-L"><span class="l" aria-hidden="true">L</span> Level <span class="sub">How simple or advanced should it be?</span></h3>
+        <div id="g-age"></div>
+      </section>
+
+      <section class="part" aria-labelledby="part-F">
+        <h3 id="part-F"><span class="l" aria-hidden="true">F</span> Format <span class="sub">How should the answer look?</span></h3>
+        <div id="g-style"></div>
+        <div id="g-plang"></div>
+      </section>
+
+      <div class="btns">
+        <button type="submit" class="primary big" id="btn-build"><span aria-hidden="true">✨</span> <span data-i18n="build"></span></button>
+        <button type="button" id="btn-reset"><span aria-hidden="true">🔄</span> <span data-i18n="reset"></span></button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" id="result-card" aria-labelledby="result-h" hidden>
+    <h2 id="result-h"><span class="num" aria-hidden="true">2</span> <span data-i18n="resultH"></span></h2>
+    <p class="help" data-i18n="resultHelp"></p>
+    <label class="lbl sr" for="output" data-i18n="outputLabel"></label>
+    <textarea id="output" rows="16" spellcheck="true"></textarea>
+
+    <div class="btns">
+      <button type="button" class="primary" id="btn-copy"><span aria-hidden="true">📋</span> <span data-i18n="copy"></span></button>
+      <button type="button" class="blue" id="btn-gemini"><span aria-hidden="true">✨</span> <span data-i18n="tryGemini"></span></button>
+      <button type="button" class="blue" id="btn-chatgpt"><span aria-hidden="true">💬</span> <span data-i18n="tryChatGPT"></span></button>
+      <button type="button" id="btn-improve"><span aria-hidden="true">🔍</span> <span data-i18n="improveBtn"></span></button>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p class="note" data-i18n="tryNote"></p>
+
+    <div class="improve" id="improve" hidden tabindex="-1" aria-live="polite">
+      <h3 id="improve-h"></h3>
+      <ul id="improve-list"></ul>
+    </div>
+  </section>
+
+  <section class="card" id="check-card" aria-labelledby="check-h" hidden>
+    <h2 id="check-h"><span class="num" aria-hidden="true">3</span> <span data-i18n="checkH"></span></h2>
+    <p class="help" data-i18n="checkHelp"></p>
+    <ul class="checks" id="checks"></ul>
+    <p class="status" id="check-status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card reflect" id="reflect-card" aria-labelledby="reflect-h" hidden>
+    <h2 id="reflect-h"><span class="num" aria-hidden="true">4</span> <span data-i18n="reflectH"></span></h2>
+    <p class="help" data-i18n="reflectHelp"></p>
+    <label class="lbl" for="r1" data-i18n="r1"></label>
+    <textarea id="r1" rows="3"></textarea>
+    <label class="lbl" for="r2" data-i18n="r2"></label>
+    <textarea id="r2" rows="3"></textarea>
+    <label class="lbl" for="r3" data-i18n="r3"></label>
+    <textarea id="r3" rows="3"></textarea>
+  </section>
+
+  <section class="card how" aria-labelledby="how-h">
+    <h2 id="how-h"><span aria-hidden="true">💡</span> <span data-i18n="rememberH"></span></h2>
+    <ol>
+      <li data-i18n="rem1"></li>
+      <li data-i18n="rem2"></li>
+      <li data-i18n="rem3"></li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <p data-i18n="footer"></p>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =====================================================================
+     TEXT FOR THE PAGE (ui) AND FOR THE GENERATED PROMPT (p)
+     Languages: en = English, ms = Bahasa Melayu, zh = 中文 (Simplified)
+     ===================================================================== */
+  var I18N = {
+  en:{
+    htmlLang:'en',
+    ui:{
+      skip:'Skip to the prompt builder', title:'AI Learning Buddy – Prompt Builder',
+      tagline:'Ask better questions. Think harder. Learn more.',
+      welcome:'Welcome!',
+      intro1:'Tell us what you want to learn. We will build a prompt for you using RTCLF: five simple parts that help AI give you a much better answer. Then paste it into an AI tool such as Gemini or ChatGPT. You also choose which language AI answers in.',
+      rtclfH:'RTCLF: the 5 parts of a great prompt', rtclfFill:'This page fills in all five parts for you from your choices below.',
+      intro2:'The goal is not to get quick answers. The goal is to make AI help you think.',
+      privLead:'Private by design.',
+      privText:'This page does not ask for your name or email, does not send anything anywhere, and does not save what you type. Please don’t type private information such as your full name, school, address or phone number.',
+      formH:'Tell us about your learning', reqNote:'means you need to answer.',
+      otherLabel:'Which subject?', otherPh:'For example: Art, Computing, Islamic Studies',
+      topicLabel:'What is your topic or question?', topicHelp:'Be specific! “How do plants make food?” works better than “plants”.', topicPh:'Type your topic or question here',
+      extraLabel:'Anything else AI should know?', optional:'(optional)', extraHelp:'For example: “I get confused by fractions” or “Please use football examples”.',
+      build:'Build My Prompt', reset:'Start Again',
+      resultH:'Your prompt', resultHelp:'You can edit it before you use it. Make it sound like you!', outputLabel:'Your generated prompt (you can edit it)',
+      copy:'Copy Prompt', tryGemini:'Try with Gemini', tryChatGPT:'Try with ChatGPT', improveBtn:'Improve My Prompt',
+      tryNote:'The “Try with” buttons open a new tab and copy your prompt. Nothing is sent for you: you paste it into the AI tool (press Ctrl+V, or Cmd+V on a Mac) and press send.',
+      checkH:'Prompt checklist', checkHelp:'Tick each box when you can say “yes”.',
+      reflectH:'Reflect on what happened', reflectHelp:'After you try your prompt in an AI tool, think about these questions. Your answers stay on this page and disappear when you close it. Please don’t write your name.',
+      r1:'1. What did AI explain well?', r2:'2. What was confusing?', r3:'3. How would you improve your prompt?',
+      rememberH:'Remember',
+      rem1:'AI can make mistakes. Check important facts in a book, with a teacher or on a trusted website.',
+      rem2:'Use AI to help you learn, not to do your assessed work for you.',
+      rem3:'A good prompt is clear, specific and useful for your learning, not just long.',
+      plangHelp:'Your prompt is written in English. AI will answer in the language you choose.',
+      e_plang:'Please choose the language for AI’s answer.',
+      footer:'AI Learning Buddy Workshop · Prompt Builder · Works offline. No account, no tracking, nothing is stored.',
+      required:'(required)', add:'Add this', addAria:'Add to my prompt: ',
+      e_age:'Please choose your age group.', e_role:'Please choose who AI should act as.', e_goal:'Please choose a learning goal.', e_subject:'Please choose a subject.',
+      e_subjectOther:'Please type the name of your subject.', e_topic:'Please tell us your topic or question.',
+      e_style:'Please choose an explanation style.', e_approach:'Please choose a learning approach.',
+      sum1:'Almost there! Please fix this:', sumN:'Almost there! Please fix these {n} things:',
+      s_ready:'Your prompt is ready! Read it, change anything you like, then copy it.',
+      s_need:'Please build your prompt first (or type one in the box).',
+      s_copied:'✅ Copied! Now paste it into your AI tool.',
+      s_manual:'Your browser blocked automatic copying. Your prompt is selected: press Ctrl+C (Cmd+C on a Mac) to copy it.',
+      s_tryOk:'✅ Prompt copied and {n} opened in a new tab. Paste it there (Ctrl+V or Cmd+V) and press send yourself.',
+      s_tabBlockedCopied:'Your browser blocked the new tab. Open {n} yourself, then paste your prompt there (it is already copied).',
+      s_tabBlocked:'Your browser blocked the new tab. Open {n} yourself, then paste your prompt there.',
+      s_tryNoCopy:'{n} opened in a new tab, but your browser blocked automatic copying. Come back here: your prompt is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into {n}.',
+      s_added:'Added to your prompt. Read it and change it if you want.',
+      s_langRebuilt:'Answer language changed. Your prompt was updated.',
+      s_langHint:'Answer language changed. Please update the “Please answer in…” sentence in your prompt, or press “Build My Prompt” again.',
+      c_n:'{n} of {t} ticked', c_all:'🌟 Amazing! You are a Prompt Pro.',
+      imp_h:'Ideas to make your prompt even better', imp_perfect:'Great prompt! It covers all five RTCLF parts and the learning rules.',
+      o_short:'Your topic is very short (“{t}”). Try a full question, such as “Why…?” or “How does…?”',
+      o_vague:'Words like “it”, “this” or “stuff” are vague. Name the exact thing you mean.',
+      o_shortP:'Your prompt is quite short. Adding details about you and how you learn best usually gives much better answers.',
+      o_longP:'Your prompt is very long. Try cutting anything repeated. A good prompt is clear, not just long.',
+      o_limit:'Add a limit, such as “keep each answer under 100 words” or “ask me 3 questions”.'
+    },
+    rtclf:[
+      ['R','Role','Who should AI be? (a tutor, quiz master or coach)'],
+      ['T','Task','What should AI do? (help you practise, quiz you)'],
+      ['C','Context','What does AI need to know? (subject, topic, extra details)'],
+      ['L','Level','How hard or simple should it be? (your age)'],
+      ['F','Format','How should the answer look? (steps, story, diagram)']
+    ],
+    legend:{age:'How old are you?', goal:'What is your learning goal?', role:'Who should AI act as?', subject:'Which subject is it?', style:'How would you like AI to explain?', approach:'How would you like AI to help you learn?', plang:'Which language should AI answer in?'},
+    opt:{
+      age:{'8-10':'8–10 years','11-13':'11–13 years','14-17':'14–17 years'},
+      goal:{understand:'Explain a difficult topic',homework:'Practise homework',exam:'Prepare me for a test',remember:'Help me remember facts',language:'Practise a language',writing:'Improve writing',research:'Research a topic',problem:'Solve a problem'},
+      role:{tutor:'Friendly tutor',quiz:'Fun quiz master',coach:'Patient coach',game:'Learning game designer'},
+      subject:{bm:'Bahasa Melayu (Malay Language)',english:'English Language',math:'Mathematics',science:'Science',chinese:'Chinese',history:'History',geography:'Geography',other:'Others'},
+      style:{simple:'Simple explanation and examples',steps:'Step-by-step explanation',analogy:'Real-life story or analogy',visual:'Visual or diagram-based explanation',challenge:'Challenging questions'},
+      approach:{hints:'Give hints before answers',questions:'Ask me questions one at a time',quiz:'Quiz me and provide feedback',mistakes:'Explain my mistakes',guide:'Guide me through the solution step by step'},
+      plang:{en:'English',ms:'Bahasa Melayu',zh:'中文 (Chinese)'}
+    },
+    chk:['Did I tell AI what I want to learn?','Did I explain my school level?','Did I tell AI how to explain the topic?','Did I ask AI to help me think instead of giving answers immediately?','Did I check whether the answer makes sense?'],
+    tips:{
+      R:['R – You told AI who to be.','R – Role: tell AI who it should be.','You are a friendly, patient tutor.'],
+      T:['T – You told AI what to do.','T – Task: say what you want AI to do.','I want to understand this topic properly.'],
+      C:['C – You gave context (subject and topic).','C – Context: tell AI your subject and topic.','My subject is ___ and my topic is ___.'],
+      L:['L – You told AI your age or level.','L – Level: say your age or level so AI uses the right words.','I am ___ years old, so please use words I can understand.'],
+      F:['F – You said how the answer should look.','F – Format: say how you want it explained (steps, examples, a story, a diagram).','Explain it in short steps and give me one example.'],
+      think:['You asked AI to help you think and check your understanding.','Ask AI to help you think and to check your understanding instead of giving the answer straight away.','Do not give me the final answer straight away. Ask me to try first and give me a hint.'],
+      honest:['You asked AI to be honest and to help you check facts.','Ask AI to say when it is not sure and to remind you to check facts.','If you are not sure, say so. Remind me to check important facts in reliable sources.'],
+      fair:['You made it clear AI should not do assessed work for you.','Tell AI not to complete assessed work for you.','If this is assessed work, help me learn but do not complete it for me.']
+    },
+    p:{
+      subjects:{bm:'Bahasa Melayu (Malay Language)',english:'English Language',math:'Mathematics',science:'Science',chinese:'Chinese',history:'History',geography:'Geography',other:'Others'},
+      tipText:{R:'Act as a friendly, patient tutor.',T:'My goal is to understand this topic properly.',C:'The subject is ___ and my topic is ___.',L:'I am a student aged ___, so please use words I can understand.',F:'Explain it in short steps and give me one example.',think:'Do not give me the final answer straight away. Ask me to try first and give me a hint.',honest:'If you are not sure, say so. Remind me to check important facts in reliable sources.',fair:'If this is assessed work, help me learn but do not complete it for me.'},
+      roles:{tutor:{noun:'tutor',extra:''},quiz:{noun:'quiz master',extra:'Make the quiz fun and exciting, like a friendly game show.'},coach:{noun:'coach',extra:'Stay calm and patient, celebrate my small wins, and never rush me.'},game:{noun:'learning game designer',extra:'Turn the learning into a fun game with challenges, points or levels, but make sure real learning happens.'}},
+      age:{
+        '8-10':{tone:'cheerful, patient and encouraging',lang:'very simple words and short sentences, and explain every new or difficult word the first time you use it'},
+        '11-13':{tone:'friendly, patient and encouraging',lang:'clear, simple language, and explain any new subject words simply when you use them'},
+        '14-17':{tone:'friendly, respectful and encouraging',lang:'clear language that can include some subject vocabulary (explain new terms briefly) and a little more depth'}
+      },
+      goal:{
+        understand:'My goal is to understand a difficult topic properly, not just memorise it.',
+        homework:'My goal is to practise my homework and work it out myself, so please do not do it for me.',
+        exam:'My goal is to prepare for a test or exam by revising, finding the gaps in what I know, and practising the important ideas.',
+        remember:'My goal is to remember some facts, so please help me with memory tricks, short quizzes and repeated practice.',
+        language:'My goal is to practise a language in small steps (words, sentences, reading or writing), with my mistakes corrected kindly and explained.',
+        writing:'My goal is to improve my writing. Give me feedback on my ideas, structure and clarity without rewriting everything for me, and ask me to paste my writing when we are ready.',
+        research:'My goal is to research this topic. Help me ask good questions, find the key ideas and decide what to look up, and remind me to write things in my own words.',
+        problem:'My goal is to solve a problem by breaking it into smaller parts and thinking it through myself.'
+      },
+      style:{
+        simple:'Explain in simple words and give me one or two easy examples.',
+        steps:'Break the explanation into short, numbered steps so I can follow each one.',
+        analogy:'Explain using a real-life story or analogy that connects to things I already know.',
+        visual:'Explain visually. Use simple text diagrams, tables or labelled sketches made from keyboard characters, and describe what each part shows.',
+        challenge:'Stretch my thinking with challenging questions. Start gently and make them a little harder each time I succeed.'
+      },
+      approach:{
+        hints:['Give hints before answers. Start with a small hint, give bigger hints only if I ask or I am stuck, and show the full answer only after I have really tried.','Start by asking me what I already know or have tried, then give me my first small hint. Then stop and wait for my reply.'],
+        questions:['Ask me questions one at a time to guide my thinking: ask ONE question, then stop and wait for my answer before you continue.','Start by asking me ONE question to find out what I already know. Then stop and wait for my answer.'],
+        quiz:['Quiz me, asking ONE question at a time, and wait for my answer each time. After each answer give feedback: what I got right, what to improve, and a short explanation.','Start with one easy quiz question. Then stop and wait for my answer.'],
+        mistakes:['Explain my mistakes. When I share my work or answer, first tell me what I got right, then point out where it went wrong, explain WHY, and let me try again myself.','Start by asking me to share my answer or attempt, and tell me you are ready to look at it.'],
+        guide:['Guide me through the solution step by step. Do ONE step at a time, ask me to try the next step before you show it, and wait for my reply.','Start by checking that I understand the question, then guide me through the first step only. Then stop and wait for my reply.']
+      },
+      one:'Never ask more than one question at a time.',
+      langName:{en:'English',ms:'Bahasa Melayu (Malay)',zh:'Simplified Chinese (简体中文)'}
+    }
+  }
+  };
+
+  /* =====================================================================
+     OPTION VALUES (language-free) – labels come from I18N[lang].opt
+     ===================================================================== */
+  var VALUES = {
+    age:['8-10','11-13','14-17'],
+    goal:['understand','homework','exam','remember','language','writing','research','problem'],
+    role:['tutor','quiz','coach','game'],
+    subject:['bm','english','math','science','chinese','history','geography','other'],
+    style:['simple','steps','analogy','visual','challenge'],
+    approach:['hints','questions','quiz','mistakes','guide'],
+    plang:['en','ms','zh']
+  };
+  var ICONS = {
+    goal:{understand:'💡',homework:'📝',exam:'🎯',remember:'🧠',language:'🗣️',writing:'✍️',research:'🔎',problem:'🧩'},
+    role:{tutor:'🎓',quiz:'🎤',coach:'🏅',game:'🎮'},
+    subject:{bm:'📖',english:'🔤',math:'➗',science:'🔬',chinese:'🏮',history:'🏛️',geography:'🌏',other:'⭐'}
+  };
+  var INTERACTIVE = {hints:true, questions:true, quiz:true, mistakes:false, guide:true};
+  var GROUPS = [
+    {id:'age', host:'g-age', req:true}, {id:'goal', host:'g-goal', req:true}, {id:'role', host:'g-role', req:true}, {id:'subject', host:'g-subject', req:true},
+    {id:'style', host:'g-style', req:true, stack:true}, {id:'approach', host:'g-approach', req:true, stack:true},
+    {id:'plang', host:'g-plang', req:true, help:'plangHelp'}
+  ];
+  var CHECK_COUNT = 5;
+
+  var LANG = 'en';
+  function $(id){ return document.getElementById(id); }
+  function U(k, vars){
+    var s = I18N[LANG].ui[k]; if (s === undefined) s = I18N.en.ui[k] || k;
+    if (vars) Object.keys(vars).forEach(function(n){ s = s.split('{'+n+'}').join(vars[n]); });
+    return s;
+  }
+  function clean(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  function val(name){ var r = document.querySelector('input[name="'+name+'"]:checked'); return r ? r.value : ''; }
+  function optLabel(g, v){
+    var t = I18N[LANG].opt[g][v];
+    return (ICONS[g] && ICONS[g][v]) ? ICONS[g][v]+' '+t : t;
+  }
+
+  /* ---------- Build radio groups (once) ---------- */
+  GROUPS.forEach(function(g){
+    var host = $(g.host);
+    host.setAttribute('role','group');
+    var fs = document.createElement('fieldset'); fs.id = 'fs-'+g.id;
+    var lg = document.createElement('legend');
+    var lt = document.createElement('span'); lt.className='legtxt'; lg.appendChild(lt);
+    if (g.req){
+      lg.appendChild(document.createTextNode(' '));
+      var star = document.createElement('span'); star.className='req'; star.textContent='*'; star.setAttribute('aria-hidden','true'); lg.appendChild(star);
+      var sr = document.createElement('span'); sr.className='sr reqsr'; lg.appendChild(sr);
+    } else {
+      lg.appendChild(document.createTextNode(' '));
+      var op = document.createElement('span'); op.className='note optlabel'; lg.appendChild(op);
+    }
+    fs.appendChild(lg);
+    if (g.help){ var hp = document.createElement('p'); hp.className='help'; hp.setAttribute('data-i18n', g.help); fs.appendChild(hp); }
+    var chips = document.createElement('div'); chips.className = 'chips'+(g.stack?' stack':'');
+    VALUES[g.id].forEach(function(v,i){
+      var d = document.createElement('div'); d.className='chip';
+      var inp = document.createElement('input'); inp.type='radio'; inp.name=g.id; inp.value=v; inp.id=g.id+'-'+i;
+      if (g.id==='plang' && v==='en'){ inp.checked = true; inp.defaultChecked = true; }
+      if (g.req) inp.setAttribute('aria-describedby','e-'+g.id);
+      var lab = document.createElement('label'); lab.setAttribute('for',inp.id);
+      d.appendChild(inp); d.appendChild(lab); chips.appendChild(d);
+    });
+    fs.appendChild(chips);
+    if (g.req){ var err = document.createElement('p'); err.className='err'; err.id='e-'+g.id; fs.appendChild(err); }
+    host.appendChild(fs);
+  });
+
+  /* ---------- Checklist (built once, labels updated per language) ---------- */
+  (function(){
+    var ul = $('checks');
+    for (var i=0;i<CHECK_COUNT;i++){
+      var li = document.createElement('li'); li.className='check';
+      var cb = document.createElement('input'); cb.type='checkbox'; cb.id='chk'+i;
+      var lb = document.createElement('label'); lb.setAttribute('for', cb.id);
+      cb.addEventListener('change', updateCheckStatus);
+      li.appendChild(cb); li.appendChild(lb); ul.appendChild(li);
+    }
+  })();
+
+  /* ---------- Apply language to the whole page ---------- */
+  function applyLang(){
+    var P = I18N[LANG];
+    document.documentElement.lang = P.htmlLang;
+    document.title = P.ui.title;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(el){ el.textContent = U(el.getAttribute('data-i18n')); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-ph]'), function(el){ el.setAttribute('placeholder', U(el.getAttribute('data-i18n-ph'))); });
+    // RTCLF cards
+    var ul = $('rtclf-list'); ul.innerHTML = '';
+    P.rtclf.forEach(function(r){
+      var li = document.createElement('li');
+      var l = document.createElement('span'); l.className='l'; l.setAttribute('aria-hidden','true'); l.textContent = r[0];
+      var n = document.createElement('span'); n.className='n'; n.textContent = r[1];
+      var q = document.createElement('span'); q.className='q'; q.textContent = r[2];
+      li.appendChild(l); li.appendChild(n); li.appendChild(q); ul.appendChild(li);
+    });
+    // groups
+    GROUPS.forEach(function(g){
+      var fs = $('fs-'+g.id);
+      fs.querySelector('.legtxt').textContent = P.legend[g.id];
+      var sr = fs.querySelector('.reqsr'); if (sr) sr.textContent = U('required');
+      var op = fs.querySelector('.optlabel'); if (op) op.textContent = U('optional');
+      VALUES[g.id].forEach(function(v,i){ fs.querySelector('label[for="'+g.id+'-'+i+'"]').textContent = optLabel(g.id, v); });
+      var err = $('e-'+g.id); if (err) err.textContent = U('e_'+g.id);
+    });
+    // checklist
+    for (var i=0;i<CHECK_COUNT;i++) document.querySelector('label[for="chk'+i+'"]').textContent = P.chk[i];
+    updateCheckStatus();
+  }
+
+  /* ---------- Changing the ANSWER language after the prompt is built ---------- */
+  var lastLang = '';
+  function lastOutputUnedited(){ return lastGenerated && $('output').value === lastGenerated; }
+  function onPromptLangChange(){
+    $('improve').hidden = true; $('improve-list').innerHTML = '';
+    if ($('result-card').hidden) return;
+    var out = $('output'), was = lastOutputUnedited(), now = langSentence();
+    if (lastLang && out.value.indexOf(lastLang) > -1){
+      out.value = out.value.split(lastLang).join(now);
+      if (was) lastGenerated = out.value;
+      lastLang = now; setStatus(U('s_langRebuilt'), 'ok');
+    } else if (clean(out.value)) { setStatus(U('s_langHint'), 'warn'); }
+  }
+
+  /* ---------- Form events ---------- */
+  $('builder').addEventListener('change', function(e){
+    if (e.target && e.target.name === 'subject'){
+      var other = val('subject') === 'other';
+      $('f-subjectOther').hidden = !other;
+      if (other) { $('subjectOther').focus(); } else { setInvalid('f-subjectOther', false); }
+    }
+    if (e.target && e.target.type === 'radio'){ var fs = e.target.closest('fieldset'); if (fs) fs.classList.remove('invalid'); }
+    if (e.target && e.target.name === 'plang') onPromptLangChange();
+  });
+  $('topic').addEventListener('input', function(){ if (clean(this.value)) setInvalid('f-topic', false); });
+  $('subjectOther').addEventListener('input', function(){ if (clean(this.value)) setInvalid('f-subjectOther', false); });
+  $('extra').addEventListener('input', function(){ $('extra-count').textContent = this.value.length+' / 500'; });
+
+  function setInvalid(id, on){
+    var el = $(id); if (!el) return;
+    el.classList.toggle('invalid', !!on);
+    var input = el.querySelector('input[type=text]'); if (input) input.setAttribute('aria-invalid', on ? 'true' : 'false');
+  }
+
+  /* ---------- Validation ---------- */
+  function collectErrors(){
+    var errors = [];
+    GROUPS.forEach(function(g){ if (g.req && !val(g.id)) errors.push({id:g.id, focus:g.id+'-0', msg:U('e_'+g.id)}); });
+    if (val('subject')==='other' && !clean($('subjectOther').value)) errors.push({id:'subjectOther', focus:'subjectOther', msg:U('e_subjectOther')});
+    if (!clean($('topic').value)) errors.push({id:'topic', focus:'topic', msg:U('e_topic')});
+    errors.sort(function(a,b){
+      var A=$(a.focus), B=$(b.focus); if(!A||!B) return 0;
+      return (A.compareDocumentPosition(B) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+    });
+    return errors;
+  }
+  function validate(){
+    var errors = collectErrors(), bad = {};
+    errors.forEach(function(e){ bad[e.id] = true; });
+    GROUPS.forEach(function(g){ if (g.req) $('fs-'+g.id).classList.toggle('invalid', !!bad[g.id]); });
+    setInvalid('f-subjectOther', !!bad.subjectOther);
+    setInvalid('f-topic', !!bad.topic);
+    return errors;
+  }
+  function showSummary(errors){
+    var s = $('summary'); s.innerHTML = '';
+    if (!errors.length){ s.classList.remove('show'); return; }
+    var h = document.createElement('h3'); h.textContent = errors.length===1 ? U('sum1') : U('sumN',{n:errors.length});
+    var ul = document.createElement('ul');
+    errors.forEach(function(e){
+      var li = document.createElement('li'), a = document.createElement('a');
+      a.href = '#'+e.focus; a.textContent = e.msg;
+      a.addEventListener('click', function(ev){ ev.preventDefault(); var t=$(e.focus); if(t) t.focus(); });
+      li.appendChild(a); ul.appendChild(li);
+    });
+    s.appendChild(h); s.appendChild(ul); s.classList.add('show');
+  }
+
+  /* ---------- Prompt generation (RTCLF) ---------- */
+  var lastGenerated = '';
+  function endSentence(t){ t = clean(t); return /[.!?。？！]$/.test(t) ? t : t + '.'; }
+  function langSentence(){ var code = val('plang') || 'en'; return 'Please answer in ' + I18N.en.p.langName[code] + '.'; }
+  function buildPrompt(){
+    var P = I18N.en.p;
+    var ageV = val('age'), age = P.age[ageV], ageText = ageV.replace('-','–');
+    var role = P.roles[val('role')], apprV = val('approach'), appr = P.approach[apprV];
+    var subject = val('subject')==='other' ? clean($('subjectOther').value) : P.subjects[val('subject')];
+    var topic = clean($('topic').value), extra = clean($('extra').value);
+
+    var who = ['Act as a '+age.tone+' '+role.noun+' for a student aged '+ageText+'.'];
+    if (role.extra) who.push(role.extra);
+    who.push(P.goal[val('goal')]);
+    who.push('The subject is '+subject+'. My topic or question is: '+endSentence(topic));
+    if (extra) who.push('More about me: '+endSentence(extra));
+
+    var how = ['Explain at my level, using '+age.lang+'.', P.style[val('style')], appr[0]];
+    if (INTERACTIVE[apprV]) how.push(P.one);
+    how.push('Help me think instead of handing me the final answer straight away, and check that I really understand by asking me questions and giving me feedback.');
+
+    var rules = ['Be honest: if you are not sure about something, say so, and remind me to check important facts in a textbook, with my teacher or in a reliable source.',
+      'If this is assessed school work (such as an assignment or test), help me learn but do not complete it for me.',
+      'Do not ask me for personal information such as my full name, school, address or phone number.',
+      langSentence(), appr[1]];
+
+    return [who.join(' '), how.join(' '), rules.join(' ')].join('\n\n');
+  }
+
+  /* ---------- Output helpers ---------- */
+  var statusTimer = null;
+  function setStatus(msg, kind){
+    var s = $('status'); s.textContent = msg||''; s.className = 'status'+(kind?(' '+kind):'');
+    clearTimeout(statusTimer);
+    if (msg && kind==='ok') statusTimer = setTimeout(function(){ s.textContent=''; s.className='status'; }, 8000);
+  }
+  function getPrompt(){ return $('output').value; }
+  function needPrompt(){
+    if (!clean(getPrompt())){ setStatus(U('s_need'), 'warn'); $('output').focus(); return true; }
+    return false;
+  }
+  async function copyText(text){
+    try{
+      if (navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+    }catch(e){ /* fall through to the older method */ }
+    try{
+      var ta = $('output');
+      if (ta.value !== text) return false;
+      ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+      return !!(document.execCommand && document.execCommand('copy'));
+    }catch(e){ return false; }
+  }
+  function selectOutput(){ var ta=$('output'); ta.focus(); ta.select(); }
+  function manualCopyHelp(){ selectOutput(); setStatus(U('s_manual'), 'warn'); }
+
+  /* ---------- Buttons ---------- */
+  $('builder').addEventListener('submit', function(e){
+    e.preventDefault();
+    var errors = validate(); showSummary(errors);
+    if (errors.length){
+      $('summary').focus();
+      $('summary').scrollIntoView({block:'center', behavior:'smooth'});
+      return;
+    }
+    lastGenerated = buildPrompt(); lastLang = langSentence();
+    $('output').value = lastGenerated;
+    ['result-card','check-card','reflect-card'].forEach(function(id){ $(id).hidden = false; });
+    updateCheckStatus();
+    $('improve').hidden = true;
+    setStatus(U('s_ready'), 'ok');
+    $('result-card').scrollIntoView({behavior:'smooth', block:'start'});
+    $('output').focus({preventScroll:true});
+  });
+
+  $('btn-copy').addEventListener('click', async function(){
+    if (needPrompt()) return;
+    var ok = await copyText(getPrompt());
+    if (ok) setStatus(U('s_copied'), 'ok'); else manualCopyHelp();
+  });
+
+  function tryWith(name, url){
+    return async function(){
+      if (needPrompt()) return;
+      var p = copyText(getPrompt());                 // start copying inside the click
+      var w = window.open(url, '_blank');            // (a 'noopener' feature would make this return null)
+      if (w) { try { w.opener = null; } catch (e) {} }
+      var ok = await p;
+      if (!w){
+        setStatus(U(ok ? 's_tabBlockedCopied' : 's_tabBlocked', {n:name}), 'warn');
+        if (!ok) selectOutput();
+        return;
+      }
+      if (ok) setStatus(U('s_tryOk', {n:name}), 'ok');
+      else { selectOutput(); setStatus(U('s_tryNoCopy', {n:name}), 'warn'); }
+    };
+  }
+  $('btn-gemini').addEventListener('click', tryWith('Gemini','https://gemini.google.com/'));
+  $('btn-chatgpt').addEventListener('click', tryWith('ChatGPT','https://chatgpt.com/'));
+
+  $('btn-reset').addEventListener('click', function(){
+    $('builder').reset();
+    $('f-subjectOther').hidden = true;
+    GROUPS.forEach(function(g){ if (g.req) $('fs-'+g.id).classList.remove('invalid'); });
+    setInvalid('f-topic', false); setInvalid('f-subjectOther', false);
+    showSummary([]);
+    $('extra-count').textContent = '0 / 500';
+    $('output').value = ''; lastGenerated = ''; lastLang = '';
+    ['result-card','check-card','reflect-card'].forEach(function(id){ $(id).hidden = true; });
+    $('improve').hidden = true; $('improve-list').innerHTML='';
+    ['r1','r2','r3'].forEach(function(id){ $(id).value=''; });
+    Array.prototype.forEach.call(document.querySelectorAll('#checks input'), function(c){ c.checked = false; });
+    updateCheckStatus();
+    setStatus('');
+    window.scrollTo({top:0, behavior:'smooth'});
+    var first = document.querySelector('input[name="age"]'); if (first) first.focus({preventScroll:true});
+  });
+
+  /* ---------- Improve My Prompt (checks the five RTCLF parts + learning rules) ---------- */
+  // Each test looks for key words in English, Bahasa Melayu and Chinese.
+  var CHECKS = [
+    {id:'R', test:/\b(tutor|teacher|coach|mentor|buddy|quiz master|game designer)\b|cikgu|guru|pembimbing|jurulatih|pengacara|pereka|老师|家教|导师|教练|辅导|伙伴|主持人|设计师/i},
+    {id:'T', test:/\b(i want to|help me|my goal|i need to|i am preparing|quiz me|practise)\b|saya mahu|bantu saya|tolong saya|saya perlu|matlamat|我想|帮我|我需要|请帮|我的目标|我要/i},
+    {id:'C', test:/\b(subject|topic|about|because|question)\b|subjek|topik|tentang|kerana|soalan|科目|主题|关于|因为|问题/i},
+    {id:'L', test:/\b(aged?\s*\d|\d+\s*(years|yrs)|grade|level|beginner)\b|\b\d{1,2}\s*[–-]\s*\d{1,2}\b|umur|tahun|tahap|peringkat|岁|年龄|年级|程度|水平|难度|初学/i},
+    {id:'F', test:/\b(step|steps|example|examples|analogy|story|diagram|diagrams|table|tables|visual|visually|simple words|numbered|bullet|short|challenging)\b|langkah|contoh|analogi|cerita|rajah|jadual|visual|ringkas|bernombor|mencabar|步骤|例子|比喻|故事|图|表格|简单|编号|简短|有挑战性/i},
+    {id:'think', test:/\b(hint|one question at a time|ask me|let me try|try first|wait for my|quiz me|guide me)\b|petunjuk|satu soalan|tanya saya|biar saya cuba|tunggu jawapan|kuiz|bimbing|提示|一次问我一个|一次一个问题|问我|让我先试|让我尝试|等我回答|测验|考我|引导/i},
+    {id:'honest', test:/\b(not sure|honest|reliable|sources?|guess|double-?check)\b|tidak pasti|jujur|boleh dipercayai|sumber|meneka|semak semula|不确定|诚实|可靠|来源|乱猜|核对/i},
+    {id:'fair', test:/\b(assessed|assignment|hand in|do not complete|don.t complete|do it for me|cheat)\b|dinilai|tugasan|jangan siapkan|jangan buat untuk|menipu|评分|作业|交上去|不要替我|作弊/i}
+  ];
+  var CJK = /[㐀-鿿]/;
+  function improve(){
+    if (needPrompt()) return;
+    var T = I18N[LANG], text = getPrompt(), len = clean(text).length;
+    var good = [], add = [], other = [];
+    CHECKS.forEach(function(c){ (c.test.test(text) ? good : add).push(c.id); });
+    var topic = clean($('topic').value);
+    var shortTopic = CJK.test(topic) ? topic.length < 6 : topic.split(' ').length < 3;
+    if (topic && shortTopic && text.indexOf(topic) > -1) other.push(U('o_short',{t:topic}));
+    if (/(\b(it|this|that|stuff|things?)|\bini|\bitu|\bbenda|这个|那个|东西)\s*[.?!。？！]?$/i.test(topic)) other.push(U('o_vague'));
+    if (len < 250) other.push(U('o_shortP'));
+    if (len > 2500) other.push(U('o_longP'));
+    if (!/\d+\s*(words|sentences|questions|minutes?|perkataan|ayat|soalan|minit|字|句|个问题|分钟)|one question|satu soalan|一次一个|一次问我|short|ringkas|简短/i.test(text)) other.push(U('o_limit'));
+
+    var list = $('improve-list'); list.innerHTML = '';
+    $('improve-h').textContent = (add.length||other.length) ? U('imp_h') : U('imp_perfect');
+    add.forEach(function(id){
+      var tip = T.tips[id], addText = I18N.en.p.tipText[id];
+      var li = document.createElement('li');
+      var sp = document.createElement('span'); sp.textContent = '💡 '+tip[1];
+      var b = document.createElement('button'); b.type='button'; b.textContent = U('add');
+      b.setAttribute('aria-label', U('addAria')+addText);
+      b.addEventListener('click', function(){
+        var ta = $('output'); ta.value = ta.value.replace(/\s+$/,'') + '\n' + addText;
+        li.remove(); setStatus(U('s_added'), 'ok'); ta.focus();
+      });
+      li.appendChild(sp); li.appendChild(b); list.appendChild(li);
+    });
+    other.forEach(function(m){ var li=document.createElement('li'); var sp=document.createElement('span'); sp.textContent='💡 '+m; li.appendChild(sp); list.appendChild(li); });
+    good.forEach(function(id){ var li=document.createElement('li'); li.className='good'; var sp=document.createElement('span'); sp.textContent='✅ '+T.tips[id][0]; li.appendChild(sp); list.appendChild(li); });
+    var box = $('improve'); box.hidden = false; box.focus(); box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  $('btn-improve').addEventListener('click', improve);
+
+  /* ---------- Checklist status ---------- */
+  function updateCheckStatus(){
+    var n = document.querySelectorAll('#checks input:checked').length, s = $('check-status');
+    if (n === CHECK_COUNT){ s.textContent = U('c_all'); s.className='status ok'; }
+    else { s.textContent = U('c_n',{n:n,t:CHECK_COUNT}); s.className='status'; }
+  }
+
+  /* ---------- Start ---------- */
+  applyLang();
+})();
+</script>
+</body>
+</html>
