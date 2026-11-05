@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Learning Buddy – Prompt Builder</title>
-<meta name="description" content="Build a clear, thoughtful prompt for an AI learning buddy using RTCLF, with Chinese explanations (中文说明). No login, no tracking, nothing stored.">
+<meta name="description" content="Build a clear, thoughtful prompt for an AI learning buddy using RTCF, with Chinese explanations (中文说明). No login, no tracking, nothing stored.">
 <style>
   :root{
     --blue:#DCEEFF; --yellow:#EAE957; --white:#FFFFFF; --ink:#24415C; --green:#DDF3E4;
@@ -181,6 +181,7 @@
 
       <section class="part" aria-labelledby="part-C">
         <h3 id="part-C"><span class="l" aria-hidden="true">C</span> Context <span class="sub">What does AI need to know?</span> <span class="zh">背景 (Context)：AI 需要知道什么？</span></h3>
+        <div id="g-age"></div>
         <div id="g-subject"></div>
 
         <div id="f-subjectOther" hidden style="margin-top:1rem">
@@ -204,10 +205,6 @@
         </div>
       </section>
 
-      <section class="part" aria-labelledby="part-L">
-        <h3 id="part-L"><span class="l" aria-hidden="true">L</span> Level <span class="sub">How simple or advanced should it be?</span> <span class="zh">程度 (Level)：应该多简单或多深入？</span></h3>
-        <div id="g-age"></div>
-      </section>
 
       <section class="part" aria-labelledby="part-F">
         <h3 id="part-F"><span class="l" aria-hidden="true">F</span> Format <span class="sub">How should the answer look?</span> <span class="zh">格式 (Format)：答案应该是什么样子？</span></h3>
@@ -296,8 +293,8 @@
       skip:'Skip to the prompt builder', title:'AI Learning Buddy – Prompt Builder',
       tagline:'Ask better questions. Think harder. Learn more.',
       welcome:'Welcome!',
-      intro1:'Tell us what you want to learn. We will build a prompt for you using RTCLF: five simple parts that help AI give you a much better answer. Then paste it into an AI tool such as Gemini or ChatGPT. You also choose which language AI answers in.',
-      rtclfH:'RTCLF: the 5 parts of a great prompt', rtclfFill:'This page fills in all five parts for you from your choices below.',
+      intro1:'Tell us what you want to learn. We will build a prompt for you using RTCF: four simple parts that help AI give you a much better answer. Then paste it into an AI tool such as Gemini or ChatGPT. You also choose which language AI answers in.',
+      rtclfH:'RTCF: the 4 parts of a great prompt', rtclfFill:'This page fills in all four parts for you from your choices below.',
       intro2:'The goal is not to get quick answers. The goal is to make AI help you think.',
       privLead:'Private by design.',
       privText:'This page does not ask for your name or email, does not send anything anywhere, and does not save what you type. Please don’t type private information such as your full name, school, address or phone number.',
@@ -336,7 +333,7 @@
       s_langRebuilt:'Answer language changed. Your prompt was updated.',
       s_langHint:'Answer language changed. Please update the “Please answer in…” sentence in your prompt, or press “Build My Prompt” again.',
       c_n:'{n} of {t} ticked', c_all:'🌟 Amazing! You are a Prompt Pro.',
-      imp_h:'Ideas to make your prompt even better', imp_perfect:'Great prompt! It covers all five RTCLF parts and the learning rules.',
+      imp_h:'Ideas to make your prompt even better', imp_perfect:'Great prompt! It covers all four RTCF parts and the learning rules.',
       o_short:'Your topic is very short (“{t}”). Try a full question, such as “Why…?” or “How does…?”',
       o_vague:'Words like “it”, “this” or “stuff” are vague. Name the exact thing you mean.',
       o_shortP:'Your prompt is quite short. Adding details about you and how you learn best usually gives much better answers.',
@@ -346,9 +343,8 @@
     rtclf:[
       ['R','Role','Who should AI be? (a tutor, quiz master or coach)'],
       ['T','Task','What should AI do? (help you practise, quiz you)'],
-      ['C','Context','What does AI need to know? (subject, topic, extra details)'],
-      ['L','Level','How hard or simple should it be? (your age)'],
-      ['F','Format','How should the answer look? (steps, story, diagram)']
+      ['C','Context','What does AI need to know? (your age, subject, topic, extra details)'],
+      ['F','Format','How should the answer look? (steps, examples, story, diagram)']
     ],
     legend:{age:'How old are you?', goal:'What is your learning goal?', role:'Who should AI act as?', subject:'Which subject is it?', style:'How would you like AI to explain?', approach:'How would you like AI to help you learn?', plang:'Which language should AI answer in?'},
     opt:{
@@ -364,8 +360,7 @@
     tips:{
       R:['R – You told AI who to be.','R – Role: tell AI who it should be.','You are a friendly, patient tutor.'],
       T:['T – You told AI what to do.','T – Task: say what you want AI to do.','I want to understand this topic properly.'],
-      C:['C – You gave context (subject and topic).','C – Context: tell AI your subject and topic.','My subject is ___ and my topic is ___.'],
-      L:['L – You told AI your age or level.','L – Level: say your age or level so AI uses the right words.','I am ___ years old, so please use words I can understand.'],
+      C:['C – You gave context (your age, subject and topic).','C – Context: tell AI your age or level, your subject and your topic, so it uses the right words.','I am a student aged ___. The subject is ___ and my topic is ___.'],
       F:['F – You said how the answer should look.','F – Format: say how you want it explained (steps, examples, a story, a diagram).','Explain it in short steps and give me one example.'],
       think:['You asked AI to help you think and check your understanding.','Ask AI to help you think and to check your understanding instead of giving the answer straight away.','Do not give me the final answer straight away. Ask me to try first and give me a hint.'],
       honest:['You asked AI to be honest and to help you check facts.','Ask AI to say when it is not sure and to remind you to check facts.','If you are not sure, say so. Remind me to check important facts in reliable sources.'],
@@ -373,7 +368,7 @@
     },
     p:{
       subjects:{bm:'Bahasa Melayu (Malay Language)',english:'English Language',math:'Mathematics',science:'Science',chinese:'Chinese',history:'History',geography:'Geography',other:'Others'},
-      tipText:{R:'Act as a friendly, patient tutor.',T:'My goal is to understand this topic properly.',C:'The subject is ___ and my topic is ___.',L:'I am a student aged ___, so please use words I can understand.',F:'Explain it in short steps and give me one example.',think:'Do not give me the final answer straight away. Ask me to try first and give me a hint.',honest:'If you are not sure, say so. Remind me to check important facts in reliable sources.',fair:'If this is assessed work, help me learn but do not complete it for me.'},
+      tipText:{R:'Act as a friendly, patient tutor.',T:'My goal is to understand this topic properly.',C:'I am a student aged ___. The subject is ___ and my topic is ___.',F:'Explain it in short steps and give me one example.',think:'Do not give me the final answer straight away. Ask me to try first and give me a hint.',honest:'If you are not sure, say so. Remind me to check important facts in reliable sources.',fair:'If this is assessed work, help me learn but do not complete it for me.'},
       roles:{tutor:{noun:'tutor',extra:''},quiz:{noun:'quiz master',extra:'Make the quiz fun and exciting, like a friendly game show.'},coach:{noun:'coach',extra:'Stay calm and patient, celebrate my small wins, and never rush me.'},game:{noun:'learning game designer',extra:'Turn the learning into a fun game with challenges, points or levels, but make sure real learning happens.'}},
       age:{
         '8-10':{tone:'cheerful, patient and encouraging',lang:'very simple words and short sentences, and explain every new or difficult word the first time you use it'},
@@ -417,8 +412,8 @@
   var ZH = {
     ui:{
       skip:'跳到提示词生成器', title:'学习伙伴 AI – 提示词生成器', tagline:'问更好的问题。多思考。多学习。', welcome:'欢迎！',
-      intro1:'告诉我们你想学什么。我们会用 RTCLF 为你生成提示词：这五个简单的部分能帮助 AI 给出好得多的回答。然后把它粘贴到 Gemini 或 ChatGPT 等 AI 工具中。你还可以选择 AI 用哪种语言回答。',
-      rtclfH:'RTCLF：好提示词的 5 个部分', rtclfFill:'本页会根据你在下面的选择，自动填好这五个部分。',
+      intro1:'告诉我们你想学什么。我们会用 RTCF 为你生成提示词：这四个简单的部分能帮助 AI 给出好得多的回答。然后把它粘贴到 Gemini 或 ChatGPT 等 AI 工具中。你还可以选择 AI 用哪种语言回答。',
+      rtclfH:'RTCF：好提示词的 4 个部分', rtclfFill:'本页会根据你在下面的选择，自动填好这四个部分。',
       intro2:'目标不是快速得到答案，而是让 AI 帮助你思考。',
       privLead:'隐私优先。', privText:'本页不会询问你的姓名或电子邮件，不会把任何内容发送到任何地方，也不会保存你输入的内容。请不要输入全名、学校、地址或电话号码等私人信息。',
       formH:'告诉我们你的学习情况', reqNote:'表示必须回答。',
@@ -456,14 +451,14 @@
       s_langRebuilt:'回答语言已更改，你的提示词已更新。',
       s_langHint:'回答语言已更改。请更新提示词中的“Please answer in…”这句话，或再次按“Build My Prompt”。',
       c_n:'已勾选 {n} / {t}', c_all:'太棒了！你是提示词高手。',
-      imp_h:'让你的提示词更好的建议', imp_perfect:'很棒的提示词！它涵盖了 RTCLF 的全部五个部分和学习规则。',
+      imp_h:'让你的提示词更好的建议', imp_perfect:'很棒的提示词！它涵盖了 RTCF 的全部四个部分和学习规则。',
       o_short:'你的主题很短（“{t}”）。试试写成完整的问题，例如“Why…?”（为什么……？）或“How does…?”（……是怎样……的？）',
       o_vague:'“it”“this”“stuff”这类词很含糊。请说出你指的具体事物。',
       o_shortP:'你的提示词相当短。补充关于你自己和你怎样学习最好的细节，通常会得到好得多的回答。',
       o_longP:'你的提示词很长。试着删掉重复的内容。好的提示词是清楚，而不只是长。',
       o_limit:'加上一个限制，例如“每个回答不超过 100 个词”或“问我 3 个问题”。'
     },
-    rtclf:[['角色','AI 应该是谁？（导师、问答主持人或教练）'],['任务','AI 应该做什么？（帮你练习、考你）'],['背景','AI 需要知道什么？（科目、主题、补充细节）'],['程度','难度应该多高或多简单？（你的年龄）'],['格式','答案应该是什么样子？（步骤、故事、图表）']],
+    rtclf:[['角色','AI 应该是谁？（导师、问答主持人或教练）'],['任务','AI 应该做什么？（帮你练习、考你）'],['背景','AI 需要知道什么？（你的年龄、科目、主题、补充细节）'],['格式','答案应该是什么样子？（步骤、例子、故事、图表）']],
     legend:{age:'你几岁？', goal:'你的学习目标是什么？', role:'AI 应该扮演谁？', subject:'哪一个科目？', style:'你希望 AI 怎样讲解？', approach:'你希望 AI 怎样帮助你学习？', plang:'AI 应该用哪种语言回答？'},
     opt:{
       age:{'8-10':'8–10 岁','11-13':'11–13 岁','14-17':'14–17 岁'},
@@ -478,8 +473,7 @@
     tips:{
       R:['R – 你告诉了 AI 它该扮演谁。','R – 角色：告诉 AI 它应该是谁。'],
       T:['T – 你告诉了 AI 要做什么。','T – 任务：说明你想让 AI 做什么。'],
-      C:['C – 你提供了背景（科目和主题）。','C – 背景：告诉 AI 你的科目和主题。'],
-      L:['L – 你告诉了 AI 你的年龄或程度。','L – 程度：说明你的年龄或程度，AI 才会用合适的词语。'],
+      C:['C – 你提供了背景（你的年龄、科目和主题）。','C – 背景：告诉 AI 你的年龄或程度、科目和主题，AI 才会用合适的词语。'],
       F:['F – 你说明了答案应该是什么样子。','F – 格式：说明你希望怎样讲解（步骤、例子、故事、图表）。'],
       think:['你要求 AI 帮你思考并检查你的理解。','要求 AI 帮你思考并检查你的理解，而不是马上给出答案。'],
       honest:['你要求 AI 诚实并帮你核对事实。','要求 AI 在不确定时说出来，并提醒你核对事实。'],
@@ -640,7 +634,7 @@
       var k = el.getAttribute('data-i18n-ph'), s = U(k).split(SEP);
       el.setAttribute('placeholder', s[0] + (s[1] ? '  |  ' + s[1] : ''));
     });
-    // RTCLF cards
+    // RTCF cards
     var ul = $('rtclf-list'); ul.innerHTML = '';
     P.rtclf.forEach(function(r){
       var li = document.createElement('li');
@@ -736,7 +730,7 @@
     s.appendChild(h); s.appendChild(ul); s.classList.add('show');
   }
 
-  /* ---------- Prompt generation (RTCLF) ---------- */
+  /* ---------- Prompt generation (RTCF) ---------- */
   var lastGenerated = '';
   var zhSnap = null;   // Chinese explanation of the prompt as it was built
   function endSentence(t){ t = clean(t); return /[.!?。？！]$/.test(t) ? t : t + '.'; }
@@ -874,13 +868,12 @@
     var first = document.querySelector('input[name="age"]'); if (first) first.focus({preventScroll:true});
   });
 
-  /* ---------- Improve My Prompt (checks the five RTCLF parts + learning rules) ---------- */
+  /* ---------- Improve My Prompt (checks the four RTCF parts + learning rules) ---------- */
   // Each test looks for key words in English, Bahasa Melayu and Chinese.
   var CHECKS = [
     {id:'R', test:/\b(tutor|teacher|coach|mentor|buddy|quiz master|game designer)\b|cikgu|guru|pembimbing|jurulatih|pengacara|pereka|老师|家教|导师|教练|辅导|伙伴|主持人|设计师/i},
     {id:'T', test:/\b(i want to|help me|my goal|i need to|i am preparing|quiz me|practise)\b|saya mahu|bantu saya|tolong saya|saya perlu|matlamat|我想|帮我|我需要|请帮|我的目标|我要/i},
-    {id:'C', test:/\b(subject|topic|about|because|question)\b|subjek|topik|tentang|kerana|soalan|科目|主题|关于|因为|问题/i},
-    {id:'L', test:/\b(aged?\s*\d|\d+\s*(years|yrs)|grade|level|beginner)\b|\b\d{1,2}\s*[–-]\s*\d{1,2}\b|umur|tahun|tahap|peringkat|岁|年龄|年级|程度|水平|难度|初学/i},
+    {id:'C', test:new RegExp((/\b(subject|topic|about|because|question)\b|subjek|topik|tentang|kerana|soalan|科目|主题|关于|因为|问题/i).source + '|' + (/\b(aged?\s*\d|\d+\s*(years|yrs)|grade|level|beginner)\b|\b\d{1,2}\s*[–-]\s*\d{1,2}\b|umur|tahun|tahap|peringkat|岁|年龄|年级|程度|水平|难度|初学/i).source, 'i')},
     {id:'F', test:/\b(step|steps|example|examples|analogy|story|diagram|diagrams|table|tables|visual|visually|simple words|numbered|bullet|short|challenging)\b|langkah|contoh|analogi|cerita|rajah|jadual|visual|ringkas|bernombor|mencabar|步骤|例子|比喻|故事|图|表格|简单|编号|简短|有挑战性/i},
     {id:'think', test:/\b(hint|one question at a time|ask me|let me try|try first|wait for my|quiz me|guide me)\b|petunjuk|satu soalan|tanya saya|biar saya cuba|tunggu jawapan|kuiz|bimbing|提示|一次问我一个|一次一个问题|问我|让我先试|让我尝试|等我回答|测验|考我|引导/i},
     {id:'honest', test:/\b(not sure|honest|reliable|sources?|guess|double-?check)\b|tidak pasti|jujur|boleh dipercayai|sumber|meneka|semak semula|不确定|诚实|可靠|来源|乱猜|核对/i},
