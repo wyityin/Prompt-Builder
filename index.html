@@ -4,924 +4,525 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Learning Buddy – Prompt Builder</title>
-<meta name="description" content="Build a clear, thoughtful prompt for an AI learning buddy using RTCF, with Chinese explanations (中文说明). No login, no tracking, nothing stored.">
+<meta name="description" content="Build a clear, thoughtful prompt for an AI learning buddy using RTCF (Role, Task, Context, Format), with Chinese explanations (中文说明). No login, no tracking, nothing stored.">
 <style>
+  /* ---------- Mobile first (375px). Wider layouts are added at min-width:768px ---------- */
   :root{
-    --blue:#DCEEFF; --yellow:#EAE957; --white:#FFFFFF; --ink:#24415C; --green:#DDF3E4;
-    --ink-soft:#4A647C; --line:#B9D3EA; --red:#9C2B2B; --red-bg:#FDE9E7; --green-ink:#1D6B3A;
-    --radius:20px;
+    --bg:#FFF8EB; --ink:#1A2B4A; --soft:#5F6B7A; --line:#E8DCC4; --white:#FFFFFF;
+    --R:#4CAF50; --T:#2196F3; --C:#FF9800; --F:#9C5CB5;
+    --Rd:#2E7D32; --Td:#1769B5; --Cd:#B85C00; --Fd:#7E3FA0;
+    --Rt:rgba(76,175,80,.20); --Tt:rgba(33,150,243,.18); --Ct:rgba(255,152,0,.22); --Ft:rgba(156,92,181,.18);
+    --good:#E6F4E8; --good-ink:#1D6B3A; --warn:#FDE9E7; --warn-ink:#9C2B2B;
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--blue);color:var(--ink);font-family:"Trebuchet MS","Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans CJK SC",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:18px;line-height:1.55}
-  .skip{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:0 0 12px 0;z-index:10}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Trebuchet MS","Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans CJK SC",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+  svg{display:block}
+  .skip{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:.7rem 1rem;border-radius:0 0 12px 0;z-index:20}
   .skip:focus{left:0}
-  header{background:var(--yellow);border-bottom:6px solid var(--ink);padding:1.4rem 1rem 1.6rem}
-  .wrap{max-width:900px;margin:0 auto;padding:0 1rem}
-  header .wrap{padding:0}
-  .brand{display:flex;gap:1rem;align-items:center;min-width:0}
-  .logo{flex:none;width:64px;height:64px;border-radius:50%;background:var(--white);border:4px solid var(--ink);display:grid;place-items:center;font-size:34px}
-  h1{margin:0;font-size:clamp(1.5rem,4.6vw,2.3rem);line-height:1.15}
-  .tag{margin:.2rem 0 0;font-size:1.05rem}
-  main.wrap{padding:1.6rem 1rem 3rem}
-  .card{background:var(--white);border-radius:var(--radius);border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink);padding:1.4rem 1.4rem 1.6rem;margin:0 0 1.8rem}
-  .card h2{margin:0 0 .3rem;font-size:1.4rem;line-height:1.25;display:flex;gap:.6rem;align-items:center}
-  .num{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);display:grid;place-items:center;font-size:1rem;font-weight:700}
-  .intro p{margin:.5rem 0}
-  .rtclf{margin-top:1rem;background:var(--blue);border-radius:16px;padding:1rem 1.1rem;border:3px dashed var(--ink)}
-  .rtclf h3{margin:0 0 .6rem;font-size:1.15rem}
-  .rtclf ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:.7rem}
-  .rtclf li{background:var(--white);border-radius:14px;padding:.7rem .8rem;border:2px solid var(--line)}
-  .rtclf .l{display:inline-grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);font-weight:700;margin-right:.4rem;vertical-align:middle}
-  .rtclf .n{font-weight:700;vertical-align:middle}
-  .rtclf .q{display:block;font-size:.95rem;margin-top:.35rem;line-height:1.4}
-  .rtclf .fill{margin:.7rem 0 0;font-size:.98rem}
-  .privacy{display:flex;gap:.6rem;align-items:flex-start;background:var(--green);border-radius:14px;padding:.7rem 1rem;margin-top:.9rem;font-size:1rem}
-  .part{margin-top:1.8rem;padding-top:1.1rem;border-top:3px dashed var(--line)}
-  .part:first-of-type{margin-top:1rem;border-top:0;padding-top:0}
-  .part h3{margin:0;font-size:1.25rem;display:flex;flex-wrap:wrap;gap:.35rem .6rem;align-items:center}
-  .part h3 .l{display:inline-grid;place-items:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--yellow);border:3px solid var(--ink);font-weight:700;font-size:1rem}
-  .part h3 .sub{font-size:.98rem;font-weight:400;color:var(--ink-soft)}
-  .part fieldset:first-of-type{margin-top:.8rem}
-  fieldset{border:0;margin:1.3rem 0 0;padding:0;min-width:0}
-  legend,label.lbl{display:block;font-weight:700;font-size:1.1rem;padding:0;margin-bottom:.45rem}
-  .req{color:var(--red);font-weight:700}
-  .help{font-size:.95rem;color:var(--ink-soft);margin:0 0 .5rem}
-  .chips{display:flex;flex-wrap:wrap;gap:.6rem}
-  .chip{position:relative}
-  .chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
-  .chip label{display:flex;align-items:center;gap:.45rem;min-height:48px;padding:.5rem 1rem;background:var(--white);border:3px solid var(--line);border-radius:999px;cursor:pointer;font-size:1rem;font-weight:600;line-height:1.25}
-  .chip input:hover + label{border-color:var(--ink)}
-  .chip input:checked + label{background:var(--yellow);border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
-  .chip input:checked + label::before{content:"\2713";font-weight:700}
-  .chip input:focus-visible + label{outline:4px solid var(--ink);outline-offset:3px}
-  .chips.stack .chip{flex:1 1 100%}
-  .chips.stack .chip label{border-radius:16px}
-  input[type=text],textarea{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--white);border:3px solid var(--line);border-radius:14px;padding:.7rem .9rem}
-  textarea{resize:vertical;min-height:90px}
-  input[type=text]:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,.check input:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
-  input[type=text]:hover,textarea:hover{border-color:var(--ink)}
-  ::placeholder{color:#5B7186;opacity:1}
-  .err{display:none;margin:.45rem 0 0;color:var(--red);font-weight:700;font-size:.98rem}
-  .invalid .err{display:block}
-  .invalid input[type=text]{border-color:var(--red);background:var(--red-bg)}
-  .invalid .chip label{border-color:#E5A7A0}
-  .summary{display:none;background:var(--red-bg);border:3px solid var(--red);border-radius:14px;padding:.8rem 1rem;margin:1.2rem 0 0}
-  .summary.show{display:block}
-  .summary h3{margin:0 0 .3rem;font-size:1.05rem;color:var(--red)}
-  .summary ul{margin:.2rem 0 0 1.2rem;padding:0}
-  .summary a{color:var(--red);font-weight:700}
-  .count{font-size:.9rem;color:var(--ink-soft);text-align:right;margin:.2rem 0 0}
-  .btns{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.4rem}
-  button{font:inherit;font-weight:700;font-size:1.05rem;min-height:50px;padding:.6rem 1.3rem;border-radius:999px;border:3px solid var(--ink);color:var(--ink);background:var(--white);cursor:pointer;box-shadow:0 4px 0 var(--ink);display:inline-flex;align-items:center;gap:.5rem;justify-content:center}
-  button:hover{transform:translateY(-1px)}
-  button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
-  button.primary{background:var(--yellow)}
-  button.blue{background:var(--blue)}
-  button.big{font-size:1.2rem;min-height:56px}
-  .status{min-height:1.6rem;margin:.9rem 0 0;font-weight:700}
-  .status.ok{background:var(--green);color:var(--green-ink);border-radius:12px;padding:.6rem .9rem}
-  .status.warn{background:var(--red-bg);color:var(--red);border-radius:12px;padding:.6rem .9rem}
-  .status:empty{padding:0;background:none}
-  #output{min-height:340px;font-family:Consolas,"Courier New","Microsoft YaHei","PingFang SC","Noto Sans SC",monospace;font-size:.98rem;line-height:1.55;background:#FBFDFF}
-  .note{font-size:.95rem;color:var(--ink-soft)}
-  .improve{margin-top:1.2rem;background:var(--blue);border-radius:16px;padding:1rem 1.1rem;border:3px dashed var(--ink)}
-  .improve h3{margin:0 0 .4rem;font-size:1.1rem}
-  .improve ul{list-style:none;margin:.3rem 0 0;padding:0}
-  .improve li{display:flex;gap:.7rem;align-items:flex-start;justify-content:space-between;background:var(--white);border-radius:12px;padding:.6rem .8rem;margin:.5rem 0}
-  .improve li.good{background:var(--green)}
-  .improve li button{flex:none;min-height:40px;font-size:.95rem;padding:.3rem .9rem;box-shadow:0 3px 0 var(--ink)}
-  .checks{list-style:none;margin:1rem 0 0;padding:0}
-  .check{display:flex;gap:.7rem;align-items:flex-start;padding:.55rem .7rem;border-radius:12px}
-  .check:hover{background:var(--blue)}
-  .check input{flex:none;width:28px;height:28px;margin:.1rem 0 0;accent-color:var(--ink);cursor:pointer}
-  .check label{cursor:pointer;font-weight:600}
-  .reflect label.lbl{margin-top:1.1rem}
-  .how{background:var(--yellow)}
-  .how ol{margin:.5rem 0 0 1.3rem;padding:0}
-  footer{text-align:center;font-size:.95rem;padding:0 1rem 2rem;color:var(--ink-soft)}
-  .zh{display:block;font-weight:400;font-size:.86em;line-height:1.5;color:var(--ink-soft);margin-top:.15rem}
-  .zh.in{display:inline;margin:0 0 0 .35rem}
-  .part h3 .zh{flex-basis:100%;margin:0;font-size:.95rem}
-  button .zh{color:inherit;opacity:.85;font-size:.8em;margin-top:0}
-  .btnbi{display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.25}
-  .chip label .bi{display:flex;flex-direction:column}
-  .chip input:checked + label .zh{color:var(--ink)}
-  .rtclf .n{white-space:nowrap}
-  .rtclf .n .zh{display:inline;font-size:.9em;margin-left:.3rem;white-space:nowrap}
-  .rtclf .q .zh{display:block;margin-top:.15rem}
-  .improve li .zh,.check .zh,.summary .zh{margin-top:.1rem}
-  .summary .zh{color:var(--red)}
-  .status.ok .zh{color:var(--green-ink)}
-  .status.warn .zh{color:var(--red)}
-  .zhbox{margin-top:1rem;background:var(--green);border:3px dashed var(--ink);border-radius:16px;padding:.9rem 1.1rem}
-  .zhbox h3{margin:0 0 .3rem;font-size:1.1rem}
-  .zhbox .zhnote{font-size:.92rem;color:var(--ink-soft);margin:0 0 .6rem}
-  .zhbox .zhtext p{margin:.55rem 0;font-size:1rem;line-height:1.7}
+  .wrap{max-width:900px;margin:0 auto;padding:0 16px}
+  header{border-bottom:2px solid var(--ink);padding:20px 0 22px}
+  .brand{display:flex;gap:14px;align-items:center;min-width:0}
+  .logo{flex:none;width:56px;height:56px;border-radius:50%;background:var(--white);border:2px solid var(--ink);display:grid;place-items:center}
+  .logo svg{width:32px;height:32px}
+  h1{margin:0;font-size:clamp(1.35rem,5.4vw,2.2rem);line-height:1.15}
+  .tag{margin:.3rem 0 0;font-size:1.02rem;font-weight:700}
+  main.wrap{padding-top:28px;padding-bottom:40px}
+  /* bilingual: English on top, Chinese directly below */
+  .zh{display:block;font-weight:400;font-size:.84em;line-height:1.45;color:var(--soft);margin-top:2px}
+  .en{display:block;font-weight:800}
+  .card{background:var(--white);border:1.5px solid var(--line);border-radius:20px;padding:20px 18px 22px;margin:0 0 28px}
+  .card > h2{margin:0 0 6px;font-size:1.35rem;line-height:1.25;display:flex;gap:12px;align-items:flex-start}
+  .card > h2 .ico{flex:none;width:36px;height:36px;border-radius:50%;background:var(--bg);border:2px solid var(--ink);display:grid;place-items:center}
+  .card > h2 .ico svg{width:20px;height:20px}
+  .card p{margin:.5rem 0}
+  .card p .zh,.card li .zh{margin-top:2px}
+  /* welcome card */
+  .rtcf{margin-top:14px;background:var(--bg);border:2px dashed var(--ink);border-radius:16px;padding:14px}
+  .rtcf h3{margin:0 0 10px;font-size:1.1rem}
+  .rtcf ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:10px}
+  .rtcf li{background:var(--white);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:40px 1fr;gap:4px 10px;align-items:start}
+  .rtcf .l{grid-row:1 / span 2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:1.25rem}
+  .rtcf .n{font-weight:800}
+  .rtcf .q{font-size:.95rem;line-height:1.4}
+  .rtcf .fillnote{margin:12px 0 0;font-size:.98rem}
+  .privacy{display:flex;gap:12px;align-items:flex-start;background:var(--good);border-radius:14px;padding:12px 14px;margin-top:14px;font-size:.98rem}
+  .privacy svg{flex:none;width:24px;height:24px;margin-top:2px;color:var(--good-ink)}
+  /* builder sections */
+  .sec{background:var(--white);border:1.5px solid var(--line);border-radius:20px;padding:20px 18px 24px;margin:0 0 28px}
+  .sec.R{--c:var(--R);--cd:var(--Rd);--ct:var(--Rt)} .sec.T{--c:var(--T);--cd:var(--Td);--ct:var(--Tt)}
+  .sec.C{--c:var(--C);--cd:var(--Cd);--ct:var(--Ct)} .sec.F{--c:var(--F);--cd:var(--Fd);--ct:var(--Ft)}
+  .sec.X{--c:var(--ink);--cd:var(--ink);--ct:rgba(26,43,74,.12)}
+  .sec-h{display:flex;gap:14px;align-items:center;margin:0 0 20px}
+  .badge{flex:none;width:52px;height:52px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:1.9rem;font-weight:800;line-height:1}
+  .sec-h h2{margin:0;font-size:1.25rem;line-height:1.25}
+  .grp{margin:0 0 24px;border:0;padding:0;min-width:0}
+  .glabel{margin:0 0 10px;font-size:1rem;line-height:1.3}
+  .glabel .en{font-weight:800}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font:inherit;color:var(--ink);background:var(--white);border:1.5px solid var(--c);border-radius:14px;min-height:48px;min-width:48px;max-width:100%;padding:8px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:center;line-height:1.25;overflow-wrap:anywhere}
+  .chip .en{font-size:1rem;font-weight:800}
+  .chip .zh{font-size:.82rem;margin-top:1px}
+  .chip:hover{background:var(--ct)}
+  .chip[aria-pressed="true"]{background:var(--cd);border-color:var(--cd);color:#fff}
+  .chip[aria-pressed="true"] .zh{color:rgba(255,255,255,.9)}
+  .free{margin:0}
+  .free label{display:block;margin-bottom:6px;line-height:1.3}
+  .free input,.free textarea{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--white);border:1.5px solid var(--c);border-radius:12px;padding:10px 14px}
+  .free textarea{min-height:92px;resize:vertical;line-height:1.45;display:block}
+  .free input:focus-visible,.free textarea:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+  button:focus-visible,.chip:focus-visible,.opt input:focus-visible + .optbox,a:focus-visible,.preview:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  /* answer language + progress */
+  .lang{margin:0 0 28px;border:0;padding:0;min-width:0}
+  .lang legend{padding:0;margin:0 0 10px;font-size:1.05rem}
+  .opts{display:grid;grid-template-columns:1fr;gap:10px}
+  .opt{position:relative;display:block}
+  .opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .optbox{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:64px;padding:10px 14px;background:var(--white);border:2px solid var(--ink);border-radius:16px;line-height:1.25}
+  .optbox .en{font-size:1.1rem}
+  .opt input:checked + .optbox{background:var(--ink);color:#fff}
+  .opt input:checked + .optbox .zh{color:rgba(255,255,255,.88)}
+  .hint{margin:0 0 14px;font-size:.98rem}
+  .hint .en{font-weight:700}
+  .note{font-size:.9rem;color:var(--soft);margin:6px 0 0}
+  .note .zh{font-size:1em}
+  /* preview box: sticky on mobile */
+  .previewbox{background:var(--white);border:2px solid var(--ink);border-radius:20px;padding:12px 14px 14px;position:sticky;bottom:0;z-index:5;box-shadow:0 -6px 16px rgba(26,43,74,.14);margin:0 0 28px}
+  .preview{font-family:ui-monospace,Menlo,Consolas,"Courier New","PingFang SC","Microsoft YaHei","Noto Sans SC",monospace;font-size:.88rem;line-height:1.55;background:var(--bg);border-radius:12px;padding:10px 12px;max-height:5.4em;overflow:auto;overflow-wrap:anywhere;white-space:pre-wrap}
+  .preview .ph{color:var(--soft)}
+  .preview .s-R{background:var(--Rt)} .preview .s-T{background:var(--Tt)} .preview .s-C{background:var(--Ct)} .preview .s-F{background:var(--Ft)}
+  .preview .s-X{background:rgba(26,43,74,.12)}
+  .preview .s-R,.preview .s-T,.preview .s-C,.preview .s-F,.preview .s-X{border-radius:4px;padding:0 2px}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .btn{font:inherit;color:var(--ink);background:var(--white);border:2px solid var(--ink);border-radius:999px;min-height:52px;padding:6px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+  .btn .en{font-size:.95rem;font-weight:800}
+  .btn .zh{font-size:.78rem;margin-top:1px;color:inherit;opacity:.85}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn.ghost{background:transparent}
+  .btn:hover:not(:disabled){transform:translateY(-1px)}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.42;cursor:not-allowed;border-style:dashed}
+  .trynote{margin:8px 0 0}
+  .trynote .zh{font-size:1em}
+  .status{margin:8px 0 0;font-size:.85rem;line-height:1.35}
+  .status:empty{display:none}
+  .status.ok{background:var(--good);color:var(--good-ink);border-radius:10px;padding:8px 10px}
+  .status.warn{background:var(--warn);color:var(--warn-ink);border-radius:10px;padding:8px 10px}
+  .status .zh{color:inherit}
+  /* remember */
+  .how{background:#FFEFC4;border-color:var(--ink)}
+  .how ol{margin:10px 0 0 20px;padding:0}
+  .how li{margin:8px 0}
+  footer{text-align:center;font-size:.92rem;padding:0 16px 32px;color:var(--soft)}
+  footer .zh{margin-top:2px}
   [hidden]{display:none!important}
-  .sr{position:absolute;left:-9999px}
-  @media (max-width:560px){
-    body{font-size:17px}
-    .card{padding:1.1rem 1rem 1.3rem}
-    .btns button{flex:1 1 100%}
-    .logo{width:52px;height:52px;font-size:28px}
-    .improve li{flex-direction:column}
-    .improve li button{align-self:flex-start}
-      }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}button:hover{transform:none}}
+  @media (min-width:768px){
+    body{font-size:18px}
+    header{padding:28px 0 30px}
+    .logo{width:68px;height:68px}.logo svg{width:38px;height:38px}
+    .card,.sec{padding:26px 28px 30px}
+    .rtcf ul{grid-template-columns:1fr 1fr}
+    .opts{grid-template-columns:1fr 1fr}
+    .previewbox{position:static;box-shadow:none;padding:18px 20px 20px}
+    .preview{max-height:none;min-height:8em;font-size:.95rem}
+    .actions{grid-template-columns:repeat(4,1fr);gap:10px}
+    .btn .en{font-size:1rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.btn:hover:not(:disabled),.btn:active:not(:disabled){transform:none}}
 </style>
 </head>
 <body>
-<a class="skip" href="#form-card" data-i18n="skip">Skip to the prompt builder</a>
+<a class="skip" href="#builder">Skip to the prompt builder 跳到提示词生成器</a>
 <header>
   <div class="wrap">
     <div class="brand">
-      <div class="logo" aria-hidden="true">🤖</div>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A2B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4.5V8"/><circle cx="12" cy="3.6" r="1"/><circle cx="9" cy="13" r="1.2"/><circle cx="15" cy="13" r="1.2"/><path d="M9.5 16.3h5"/></svg>
+      </div>
       <div>
-        <h1 data-i18n="title">AI Learning Buddy – Prompt Builder</h1>
-        <p class="tag" data-i18n="tagline">Ask better questions. Think harder. Learn more.</p>
+        <h1><span class="en" style="font-weight:800">AI Learning Buddy – Prompt Builder</span><span class="zh" lang="zh-Hans" style="font-size:.5em;font-weight:400">学习伙伴 AI – 提示词生成器</span></h1>
+        <p class="tag"><span class="en">Ask better questions. Think harder. Learn more.</span><span class="zh" lang="zh-Hans">问更好的问题。多思考。多学习。</span></p>
       </div>
     </div>
   </div>
 </header>
 
 <main class="wrap" id="main">
-  <noscript><div class="card"><strong>This tool needs JavaScript.</strong> Please turn JavaScript on in your browser and reload the page.<span class="zh">此工具需要 JavaScript。请在浏览器中开启 JavaScript，然后重新加载页面。</span></div></noscript>
+  <noscript><div class="card"><strong>This tool needs JavaScript.</strong> Please turn JavaScript on in your browser and reload the page.<span class="zh" lang="zh-Hans">此工具需要 JavaScript。请在浏览器中开启 JavaScript，然后重新加载页面。</span></div></noscript>
 
-  <section class="card intro" aria-labelledby="intro-h">
-    <h2 id="intro-h"><span aria-hidden="true">👋</span> <span data-i18n="welcome">Welcome!</span></h2>
-    <p data-i18n="intro1"></p>
-    <div class="rtclf">
-      <h3 data-i18n="rtclfH"></h3>
-      <ul id="rtclf-list"></ul>
-      <p class="fill" data-i18n="rtclfFill"></p>
+  <!-- WELCOME (kept; only the privacy sentence was adjusted for the Try-in buttons, emoji replaced by an SVG icon) -->
+  <section class="card" aria-labelledby="intro-h">
+    <h2 id="intro-h"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#1A2B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H10l-5 4v-4H4z"/></svg></span><span><span class="en">Welcome!</span><span class="zh" lang="zh-Hans">欢迎！</span></span></h2>
+    <p>Tell us what you want to learn. We will build a prompt for you using RTCF: four simple parts that help AI give you a much better answer. Then paste it into an AI tool such as Gemini or ChatGPT. You also choose which language AI answers in.<span class="zh" lang="zh-Hans">告诉我们你想学什么。我们会用 RTCF 为你生成提示词：这四个简单的部分能帮助 AI 给出好得多的回答。然后把它粘贴到 Gemini 或 ChatGPT 等 AI 工具中。你还可以选择 AI 用哪种语言回答。</span></p>
+    <div class="rtcf">
+      <h3><span class="en">RTCF: the 4 parts of a great prompt</span><span class="zh" lang="zh-Hans">RTCF：好提示词的 4 个部分</span></h3>
+      <ul id="rtcf-list"></ul>
+      <p class="fillnote">This page fills in all four parts for you from your choices below.<span class="zh" lang="zh-Hans">本页会根据你在下面的选择，自动填好这四个部分。</span></p>
     </div>
-    <p data-i18n="intro2"></p>
-    <p class="privacy"><span aria-hidden="true">🔒</span><span><strong data-i18n="privLead"></strong> <span data-i18n="privText"></span></span></p>
+    <p>The goal is not to get quick answers. The goal is to make AI help you think.<span class="zh" lang="zh-Hans">目标不是快速得到答案，而是让 AI 帮助你思考。</span></p>
+    <div class="privacy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span><strong>Private by design.</strong> This page does not ask for your name or email and does not save what you type. Your prompt only leaves this page if you press “Try in Gemini” or “Try in ChatGPT”. Please don’t type private information such as your full name, school, address or phone number.<span class="zh" lang="zh-Hans"><strong>隐私优先。</strong>本页不会询问你的姓名或电子邮件，也不会保存你输入的内容。只有当你点击“在 Gemini 里试试”或“在 ChatGPT 里试试”时，你的提示词才会离开本页。请不要输入全名、学校、地址或电话号码等私人信息。</span></span>
+    </div>
   </section>
 
-  <section class="card" id="form-card" aria-labelledby="form-h">
-    <h2 id="form-h"><span class="num" aria-hidden="true">1</span> <span data-i18n="formH"></span></h2>
-    <p class="help"><span class="req">*</span> <span data-i18n="reqNote"></span></p>
+  <!-- THE RTCF BUILDER -->
+  <div id="builder"></div>
 
-    <div class="summary" id="summary" role="alert" tabindex="-1" aria-live="assertive"></div>
-
-    <form id="builder" novalidate autocomplete="off">
-
-      <section class="part" aria-labelledby="part-R">
-        <h3 id="part-R"><span class="l" aria-hidden="true">R</span> Role <span class="sub">Who should AI be?</span> <span class="zh">角色 (Role)：AI 应该是谁？</span></h3>
-        <div id="g-role"></div>
-      </section>
-
-      <section class="part" aria-labelledby="part-T">
-        <h3 id="part-T"><span class="l" aria-hidden="true">T</span> Task <span class="sub">What should AI do?</span> <span class="zh">任务 (Task)：AI 应该做什么？</span></h3>
-        <div id="g-goal"></div>
-        <div id="g-approach"></div>
-      </section>
-
-      <section class="part" aria-labelledby="part-C">
-        <h3 id="part-C"><span class="l" aria-hidden="true">C</span> Context <span class="sub">What does AI need to know?</span> <span class="zh">背景 (Context)：AI 需要知道什么？</span></h3>
-        <div id="g-age"></div>
-        <div id="g-subject"></div>
-
-        <div id="f-subjectOther" hidden style="margin-top:1rem">
-          <label class="lbl" for="subjectOther"><span data-i18n="otherLabel"></span> <span class="req" aria-hidden="true">*</span><span class="zh" lang="zh-Hans" data-zh="otherLabel"></span></label>
-          <input type="text" id="subjectOther" maxlength="60" data-i18n-ph="otherPh" aria-describedby="e-subjectOther">
-          <p class="err" id="e-subjectOther" data-i18n="e_subjectOther"></p>
-        </div>
-
-        <div id="f-topic" style="margin-top:1.3rem">
-          <label class="lbl" for="topic"><span data-i18n="topicLabel"></span> <span class="req" aria-hidden="true">*</span><span class="zh" lang="zh-Hans" data-zh="topicLabel"></span></label>
-          <p class="help" id="h-topic" data-i18n="topicHelp"></p>
-          <input type="text" id="topic" maxlength="300" data-i18n-ph="topicPh" aria-describedby="h-topic e-topic">
-          <p class="err" id="e-topic" data-i18n="e_topic"></p>
-        </div>
-
-        <div style="margin-top:1.3rem">
-          <label class="lbl" for="extra"><span data-i18n="extraLabel"></span> <span class="note" data-i18n="optional"></span><span class="zh" lang="zh-Hans" data-zh="extraLabel"></span></label>
-          <p class="help" id="h-extra" data-i18n="extraHelp"></p>
-          <textarea id="extra" maxlength="500" rows="3" aria-describedby="h-extra extra-count"></textarea>
-          <p class="count" id="extra-count" aria-hidden="true">0 / 500</p>
-        </div>
-      </section>
-
-
-      <section class="part" aria-labelledby="part-F">
-        <h3 id="part-F"><span class="l" aria-hidden="true">F</span> Format <span class="sub">How should the answer look?</span> <span class="zh">格式 (Format)：答案应该是什么样子？</span></h3>
-        <div id="g-style"></div>
-        <div id="g-plang"></div>
-      </section>
-
-      <div class="btns">
-        <button type="submit" class="primary big" id="btn-build"><span aria-hidden="true">✨</span> <span class="btnbi" data-i18n="build"></span></button>
-        <button type="button" id="btn-reset"><span aria-hidden="true">🔄</span> <span class="btnbi" data-i18n="reset"></span></button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card" id="result-card" aria-labelledby="result-h" hidden>
-    <h2 id="result-h"><span class="num" aria-hidden="true">2</span> <span data-i18n="resultH"></span></h2>
-    <p class="help" data-i18n="resultHelp"></p>
-    <label class="lbl sr" for="output" data-i18n="outputLabel"></label>
-    <textarea id="output" rows="16" spellcheck="true"></textarea>
-
-    <div class="zhbox" id="zhbox" lang="zh-Hans">
-      <h3>中文说明 <span class="note">(Chinese explanation)</span></h3>
-      <p class="zhnote">这是上面英文提示词的中文说明，帮助你看懂它的意思。它不会被复制。如果你修改了上面的英文，这里不会自动更新。</p>
-      <div class="zhtext" id="zhtext"></div>
+  <fieldset class="lang">
+    <legend><span class="en">Which language should AI answer in?</span><span class="zh" lang="zh-Hans">AI 用哪种语言回答？</span></legend>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="olang" value="en"><span class="optbox"><span class="en">Answer in English</span><span class="zh" lang="zh-Hans">用英文回答</span></span></label>
+      <label class="opt"><input type="radio" name="olang" value="zh" checked><span class="optbox"><span class="en">Answer in Chinese</span><span class="zh" lang="zh-Hans">用中文回答</span></span></label>
     </div>
+  </fieldset>
 
-    <div class="btns">
-      <button type="button" class="primary" id="btn-copy"><span aria-hidden="true">📋</span> <span class="btnbi" data-i18n="copy"></span></button>
-      <button type="button" class="blue" id="btn-gemini"><span aria-hidden="true">✨</span> <span class="btnbi" data-i18n="tryGemini"></span></button>
-      <button type="button" class="blue" id="btn-chatgpt"><span aria-hidden="true">💬</span> <span class="btnbi" data-i18n="tryChatGPT"></span></button>
-      <button type="button" id="btn-improve"><span aria-hidden="true">🔍</span> <span class="btnbi" data-i18n="improveBtn"></span></button>
+  <p class="hint" id="hint"></p>
+
+  <div class="previewbox" id="previewbox">
+    <div class="preview" id="preview" tabindex="0" role="region" aria-label="Your prompt, updated live. 你的提示词（实时更新）"></div>
+    <div class="actions">
+      <button type="button" class="btn primary" id="btn-copy"></button>
+      <button type="button" class="btn ghost" id="btn-reset"></button>
+      <button type="button" class="btn" id="btn-gemini" disabled aria-describedby="trynote"></button>
+      <button type="button" class="btn" id="btn-chatgpt" disabled aria-describedby="trynote"></button>
     </div>
     <p class="status" id="status" role="status" aria-live="polite"></p>
-    <p class="note" data-i18n="tryNote"></p>
+  </div>
+  <div style="margin:-12px 0 28px">
+    <p class="note" id="trynote"><strong>Pick a role and a job to unlock the “Try in” buttons.</strong><span class="zh" lang="zh-Hans">先选好角色和任务，“在……里试试”才会亮起来。</span></p>
+    <p class="note">Empty [ ____ ] parts are left out when you copy.<span class="zh" lang="zh-Hans">空白的 [ ____ ] 部分在复制时会自动省略。</span></p>
+  </div>
 
-    <div class="improve" id="improve" hidden tabindex="-1" aria-live="polite">
-      <h3 id="improve-h"></h3>
-      <ul id="improve-list"></ul>
-    </div>
-  </section>
-
-  <section class="card" id="check-card" aria-labelledby="check-h" hidden>
-    <h2 id="check-h"><span class="num" aria-hidden="true">3</span> <span data-i18n="checkH"></span></h2>
-    <p class="help" data-i18n="checkHelp"></p>
-    <ul class="checks" id="checks"></ul>
-    <p class="status" id="check-status" role="status" aria-live="polite"></p>
-  </section>
-
-  <section class="card reflect" id="reflect-card" aria-labelledby="reflect-h" hidden>
-    <h2 id="reflect-h"><span class="num" aria-hidden="true">4</span> <span data-i18n="reflectH"></span></h2>
-    <p class="help" data-i18n="reflectHelp"></p>
-    <label class="lbl" for="r1" data-i18n="r1"></label>
-    <textarea id="r1" rows="3"></textarea>
-    <label class="lbl" for="r2" data-i18n="r2"></label>
-    <textarea id="r2" rows="3"></textarea>
-    <label class="lbl" for="r3" data-i18n="r3"></label>
-    <textarea id="r3" rows="3"></textarea>
-  </section>
-
+  <!-- REMEMBER (kept; emoji replaced by an SVG icon) -->
   <section class="card how" aria-labelledby="how-h">
-    <h2 id="how-h"><span aria-hidden="true">💡</span> <span data-i18n="rememberH"></span></h2>
+    <h2 id="how-h"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#1A2B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span><span><span class="en">Remember</span><span class="zh" lang="zh-Hans">请记住</span></span></h2>
     <ol>
-      <li data-i18n="rem1"></li>
-      <li data-i18n="rem2"></li>
-      <li data-i18n="rem3"></li>
+      <li>AI can make mistakes. Check important facts in a book, with a teacher or on a trusted website.<span class="zh" lang="zh-Hans">AI 可能会出错。请在书本中、向老师请教或在可靠的网站核对重要事实。</span></li>
+      <li>Use AI to help you learn, not to do your assessed work for you.<span class="zh" lang="zh-Hans">用 AI 帮助你学习，而不是替你完成要评分的作业。</span></li>
+      <li>A good prompt is clear, specific and useful for your learning, not just long.<span class="zh" lang="zh-Hans">好的提示词是清楚、具体、对学习有用的，而不只是长。</span></li>
     </ol>
   </section>
 </main>
 
 <footer>
-  <p data-i18n="footer"></p>
+  <p>AI Learning Buddy Workshop · Prompt Builder · Works offline. No account, no tracking, nothing is stored.<span class="zh" lang="zh-Hans">学习伙伴 AI 工作坊 · 提示词生成器 · 可离线使用。无需账号、不追踪、不保存任何内容。</span></p>
 </footer>
 
 <script>
 (function(){
   'use strict';
-
-  /* =====================================================================
-     TEXT FOR THE PAGE (ui) AND FOR THE GENERATED PROMPT (p)
-     Languages: en = English, ms = Bahasa Melayu, zh = 中文 (Simplified)
-     ===================================================================== */
-  var I18N = {
-  en:{
-    htmlLang:'en',
-    ui:{
-      skip:'Skip to the prompt builder', title:'AI Learning Buddy – Prompt Builder',
-      tagline:'Ask better questions. Think harder. Learn more.',
-      welcome:'Welcome!',
-      intro1:'Tell us what you want to learn. We will build a prompt for you using RTCF: four simple parts that help AI give you a much better answer. Then paste it into an AI tool such as Gemini or ChatGPT. You also choose which language AI answers in.',
-      rtclfH:'RTCF: the 4 parts of a great prompt', rtclfFill:'This page fills in all four parts for you from your choices below.',
-      intro2:'The goal is not to get quick answers. The goal is to make AI help you think.',
-      privLead:'Private by design.',
-      privText:'This page does not ask for your name or email, does not send anything anywhere, and does not save what you type. Please don’t type private information such as your full name, school, address or phone number.',
-      formH:'Tell us about your learning', reqNote:'means you need to answer.',
-      otherLabel:'Which subject?', otherPh:'For example: Art, Computing, Islamic Studies',
-      topicLabel:'What is your topic or question?', topicHelp:'Be specific! “How do plants make food?” works better than “plants”.', topicPh:'Type your topic or question here',
-      extraLabel:'Anything else AI should know?', optional:'(optional)', extraHelp:'For example: “I get confused by fractions” or “Please use football examples”.',
-      build:'Build My Prompt', reset:'Start Again',
-      resultH:'Your prompt', resultHelp:'You can edit it before you use it. Make it sound like you!', outputLabel:'Your generated prompt (you can edit it)',
-      copy:'Copy Prompt', tryGemini:'Try with Gemini', tryChatGPT:'Try with ChatGPT', improveBtn:'Improve My Prompt',
-      tryNote:'The “Try with” buttons open a new tab and copy your prompt. Nothing is sent for you: you paste it into the AI tool (press Ctrl+V, or Cmd+V on a Mac) and press send.',
-      checkH:'Prompt checklist', checkHelp:'Tick each box when you can say “yes”.',
-      reflectH:'Reflect on what happened', reflectHelp:'After you try your prompt in an AI tool, think about these questions. Your answers stay on this page and disappear when you close it. Please don’t write your name.',
-      r1:'1. What did AI explain well?', r2:'2. What was confusing?', r3:'3. How would you improve your prompt?',
-      rememberH:'Remember',
-      rem1:'AI can make mistakes. Check important facts in a book, with a teacher or on a trusted website.',
-      rem2:'Use AI to help you learn, not to do your assessed work for you.',
-      rem3:'A good prompt is clear, specific and useful for your learning, not just long.',
-      plangHelp:'Your prompt is written in English. AI will answer in the language you choose.',
-      e_plang:'Please choose the language for AI’s answer.',
-      footer:'AI Learning Buddy Workshop · Prompt Builder · Works offline. No account, no tracking, nothing is stored.',
-      required:'(required)', add:'Add this', addAria:'Add to my prompt: ',
-      e_age:'Please choose your age group.', e_role:'Please choose who AI should act as.', e_goal:'Please choose a learning goal.', e_subject:'Please choose a subject.',
-      e_subjectOther:'Please type the name of your subject.', e_topic:'Please tell us your topic or question.',
-      e_style:'Please choose an explanation style.', e_approach:'Please choose a learning approach.',
-      sum1:'Almost there! Please fix this:', sumN:'Almost there! Please fix these {n} things:',
-      s_ready:'Your prompt is ready! Read it, change anything you like, then copy it.',
-      s_need:'Please build your prompt first (or type one in the box).',
-      s_copied:'✅ Copied! Now paste it into your AI tool.',
-      s_manual:'Your browser blocked automatic copying. Your prompt is selected: press Ctrl+C (Cmd+C on a Mac) to copy it.',
-      s_tryOk:'✅ Prompt copied and {n} opened in a new tab. Paste it there (Ctrl+V or Cmd+V) and press send yourself.',
-      s_tabBlockedCopied:'Your browser blocked the new tab. Open {n} yourself, then paste your prompt there (it is already copied).',
-      s_tabBlocked:'Your browser blocked the new tab. Open {n} yourself, then paste your prompt there.',
-      s_tryNoCopy:'{n} opened in a new tab, but your browser blocked automatic copying. Come back here: your prompt is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into {n}.',
-      s_added:'Added to your prompt. Read it and change it if you want.',
-      s_langRebuilt:'Answer language changed. Your prompt was updated.',
-      s_langHint:'Answer language changed. Please update the “Please answer in…” sentence in your prompt, or press “Build My Prompt” again.',
-      c_n:'{n} of {t} ticked', c_all:'🌟 Amazing! You are a Prompt Pro.',
-      imp_h:'Ideas to make your prompt even better', imp_perfect:'Great prompt! It covers all four RTCF parts and the learning rules.',
-      o_short:'Your topic is very short (“{t}”). Try a full question, such as “Why…?” or “How does…?”',
-      o_vague:'Words like “it”, “this” or “stuff” are vague. Name the exact thing you mean.',
-      o_shortP:'Your prompt is quite short. Adding details about you and how you learn best usually gives much better answers.',
-      o_longP:'Your prompt is very long. Try cutting anything repeated. A good prompt is clear, not just long.',
-      o_limit:'Add a limit, such as “keep each answer under 100 words” or “ask me 3 questions”.'
-    },
-    rtclf:[
-      ['R','Role','Who should AI be? (a tutor, quiz master or coach)'],
-      ['T','Task','What should AI do? (help you practise, quiz you)'],
-      ['C','Context','What does AI need to know? (your age, subject, topic, extra details)'],
-      ['F','Format','How should the answer look? (steps, examples, story, diagram)']
-    ],
-    legend:{age:'How old are you?', goal:'What is your learning goal?', role:'Who should AI act as?', subject:'Which subject is it?', style:'How would you like AI to explain?', approach:'How would you like AI to help you learn?', plang:'Which language should AI answer in?'},
-    opt:{
-      age:{'8-10':'8–10 years','11-13':'11–13 years','14-17':'14–17 years'},
-      goal:{understand:'Explain a difficult topic',homework:'Practise homework',exam:'Prepare me for a test',remember:'Help me remember facts',language:'Practise a language',writing:'Improve writing',research:'Research a topic',problem:'Solve a problem'},
-      role:{tutor:'Friendly tutor',quiz:'Fun quiz master',coach:'Patient coach',game:'Learning game designer'},
-      subject:{bm:'Bahasa Melayu (Malay Language)',english:'English Language',math:'Mathematics',science:'Science',chinese:'Chinese',history:'History',geography:'Geography',other:'Others'},
-      style:{simple:'Simple explanation and examples',steps:'Step-by-step explanation',analogy:'Real-life story or analogy',visual:'Visual or diagram-based explanation',challenge:'Challenging questions'},
-      approach:{hints:'Give hints before answers',questions:'Ask me questions one at a time',quiz:'Quiz me and provide feedback',mistakes:'Explain my mistakes',guide:'Guide me through the solution step by step'},
-      plang:{en:'English',ms:'Bahasa Melayu',zh:'中文 (Chinese)'}
-    },
-    chk:['Did I tell AI what I want to learn?','Did I explain my school level?','Did I tell AI how to explain the topic?','Did I ask AI to help me think instead of giving answers immediately?','Did I check whether the answer makes sense?'],
-    tips:{
-      R:['R – You told AI who to be.','R – Role: tell AI who it should be.','You are a friendly, patient tutor.'],
-      T:['T – You told AI what to do.','T – Task: say what you want AI to do.','I want to understand this topic properly.'],
-      C:['C – You gave context (your age, subject and topic).','C – Context: tell AI your age or level, your subject and your topic, so it uses the right words.','I am a student aged ___. The subject is ___ and my topic is ___.'],
-      F:['F – You said how the answer should look.','F – Format: say how you want it explained (steps, examples, a story, a diagram).','Explain it in short steps and give me one example.'],
-      think:['You asked AI to help you think and check your understanding.','Ask AI to help you think and to check your understanding instead of giving the answer straight away.','Do not give me the final answer straight away. Ask me to try first and give me a hint.'],
-      honest:['You asked AI to be honest and to help you check facts.','Ask AI to say when it is not sure and to remind you to check facts.','If you are not sure, say so. Remind me to check important facts in reliable sources.'],
-      fair:['You made it clear AI should not do assessed work for you.','Tell AI not to complete assessed work for you.','If this is assessed work, help me learn but do not complete it for me.']
-    },
-    p:{
-      subjects:{bm:'Bahasa Melayu (Malay Language)',english:'English Language',math:'Mathematics',science:'Science',chinese:'Chinese',history:'History',geography:'Geography',other:'Others'},
-      tipText:{R:'Act as a friendly, patient tutor.',T:'My goal is to understand this topic properly.',C:'I am a student aged ___. The subject is ___ and my topic is ___.',F:'Explain it in short steps and give me one example.',think:'Do not give me the final answer straight away. Ask me to try first and give me a hint.',honest:'If you are not sure, say so. Remind me to check important facts in reliable sources.',fair:'If this is assessed work, help me learn but do not complete it for me.'},
-      roles:{tutor:{noun:'tutor',extra:''},quiz:{noun:'quiz master',extra:'Make the quiz fun and exciting, like a friendly game show.'},coach:{noun:'coach',extra:'Stay calm and patient, celebrate my small wins, and never rush me.'},game:{noun:'learning game designer',extra:'Turn the learning into a fun game with challenges, points or levels, but make sure real learning happens.'}},
-      age:{
-        '8-10':{tone:'cheerful, patient and encouraging',lang:'very simple words and short sentences, and explain every new or difficult word the first time you use it'},
-        '11-13':{tone:'friendly, patient and encouraging',lang:'clear, simple language, and explain any new subject words simply when you use them'},
-        '14-17':{tone:'friendly, respectful and encouraging',lang:'clear language that can include some subject vocabulary (explain new terms briefly) and a little more depth'}
-      },
-      goal:{
-        understand:'My goal is to understand a difficult topic properly, not just memorise it.',
-        homework:'My goal is to practise my homework and work it out myself, so please do not do it for me.',
-        exam:'My goal is to prepare for a test or exam by revising, finding the gaps in what I know, and practising the important ideas.',
-        remember:'My goal is to remember some facts, so please help me with memory tricks, short quizzes and repeated practice.',
-        language:'My goal is to practise a language in small steps (words, sentences, reading or writing), with my mistakes corrected kindly and explained.',
-        writing:'My goal is to improve my writing. Give me feedback on my ideas, structure and clarity without rewriting everything for me, and ask me to paste my writing when we are ready.',
-        research:'My goal is to research this topic. Help me ask good questions, find the key ideas and decide what to look up, and remind me to write things in my own words.',
-        problem:'My goal is to solve a problem by breaking it into smaller parts and thinking it through myself.'
-      },
-      style:{
-        simple:'Explain in simple words and give me one or two easy examples.',
-        steps:'Break the explanation into short, numbered steps so I can follow each one.',
-        analogy:'Explain using a real-life story or analogy that connects to things I already know.',
-        visual:'Explain visually. Use simple text diagrams, tables or labelled sketches made from keyboard characters, and describe what each part shows.',
-        challenge:'Stretch my thinking with challenging questions. Start gently and make them a little harder each time I succeed.'
-      },
-      approach:{
-        hints:['Give hints before answers. Start with a small hint, give bigger hints only if I ask or I am stuck, and show the full answer only after I have really tried.','Start by asking me what I already know or have tried, then give me my first small hint. Then stop and wait for my reply.'],
-        questions:['Ask me questions one at a time to guide my thinking: ask ONE question, then stop and wait for my answer before you continue.','Start by asking me ONE question to find out what I already know. Then stop and wait for my answer.'],
-        quiz:['Quiz me, asking ONE question at a time, and wait for my answer each time. After each answer give feedback: what I got right, what to improve, and a short explanation.','Start with one easy quiz question. Then stop and wait for my answer.'],
-        mistakes:['Explain my mistakes. When I share my work or answer, first tell me what I got right, then point out where it went wrong, explain WHY, and let me try again myself.','Start by asking me to share my answer or attempt, and tell me you are ready to look at it.'],
-        guide:['Guide me through the solution step by step. Do ONE step at a time, ask me to try the next step before you show it, and wait for my reply.','Start by checking that I understand the question, then guide me through the first step only. Then stop and wait for my reply.']
-      },
-      one:'Never ask more than one question at a time.',
-      langName:{en:'English',ms:'Bahasa Melayu (Malay)',zh:'Simplified Chinese (简体中文)'}
-    }
-  }
-  };
-
-
-  /* =====================================================================
-     CHINESE EXPLANATIONS (shown under the English text).  Keys match I18N.en.
-     ===================================================================== */
-  var ZH = {
-    ui:{
-      skip:'跳到提示词生成器', title:'学习伙伴 AI – 提示词生成器', tagline:'问更好的问题。多思考。多学习。', welcome:'欢迎！',
-      intro1:'告诉我们你想学什么。我们会用 RTCF 为你生成提示词：这四个简单的部分能帮助 AI 给出好得多的回答。然后把它粘贴到 Gemini 或 ChatGPT 等 AI 工具中。你还可以选择 AI 用哪种语言回答。',
-      rtclfH:'RTCF：好提示词的 4 个部分', rtclfFill:'本页会根据你在下面的选择，自动填好这四个部分。',
-      intro2:'目标不是快速得到答案，而是让 AI 帮助你思考。',
-      privLead:'隐私优先。', privText:'本页不会询问你的姓名或电子邮件，不会把任何内容发送到任何地方，也不会保存你输入的内容。请不要输入全名、学校、地址或电话号码等私人信息。',
-      formH:'告诉我们你的学习情况', reqNote:'表示必须回答。',
-      otherLabel:'哪一个科目？', otherPh:'例如：美术、计算机、伊斯兰教育',
-      topicLabel:'你的主题或问题是什么？', topicHelp:'要具体！“植物如何制造养分？”比“植物”更好。', topicPh:'在这里输入你的主题或问题',
-      extraLabel:'还有什么 AI 需要知道的吗？', optional:'（可选）', extraHelp:'例如：“我分不清分数”或“请用足球做例子”。',
-      build:'生成我的提示词', reset:'重新开始',
-      resultH:'你的提示词', resultHelp:'使用前你可以修改它。让它像你自己说的话！', outputLabel:'你生成的提示词（可以修改）',
-      copy:'复制提示词', tryGemini:'用 Gemini 试试', tryChatGPT:'用 ChatGPT 试试', improveBtn:'改进我的提示词',
-      tryNote:'“Try with”按钮会打开新标签页并复制你的提示词。不会替你发送任何内容：请在 AI 工具中粘贴（按 Ctrl+V，Mac 按 Cmd+V）并自己按发送。',
-      checkH:'提示词检查清单', checkHelp:'当你能回答“是”时，就勾选该框。',
-      reflectH:'回顾一下', reflectHelp:'在 AI 工具中试过你的提示词后，想一想这些问题。你的答案只留在本页，关闭后就会消失。请不要写你的名字。',
-      r1:'1. AI 哪里解释得好？', r2:'2. 哪里让你困惑？', r3:'3. 你会怎样改进你的提示词？',
-      rememberH:'请记住',
-      rem1:'AI 可能会出错。请在书本中、向老师请教或在可靠的网站核对重要事实。',
-      rem2:'用 AI 帮助你学习，而不是替你完成要评分的作业。',
-      rem3:'好的提示词是清楚、具体、对学习有用的，而不只是长。',
-      plangHelp:'你的提示词用英文书写。AI 会用你选择的语言回答。',
-      e_plang:'请选择 AI 回答所用的语言。',
-      footer:'学习伙伴 AI 工作坊 · 提示词生成器 · 可离线使用。无需账号、不追踪、不保存任何内容。',
-      add:'添加这句',
-      e_age:'请选择你的年龄组。', e_role:'请选择 AI 要扮演的角色。', e_goal:'请选择一个学习目标。', e_subject:'请选择一个科目。',
-      e_subjectOther:'请输入你的科目名称。', e_topic:'请告诉我们你的主题或问题。',
-      e_style:'请选择一种讲解方式。', e_approach:'请选择一种学习方式。',
-      sum1:'快好了！请修正这一项：', sumN:'快好了！请修正这 {n} 项：',
-      s_ready:'你的提示词好了！读一读，随意修改，然后复制它。',
-      s_need:'请先生成你的提示词（或在框中输入一个）。',
-      s_copied:'已复制！现在把它粘贴到你的 AI 工具中。',
-      s_manual:'你的浏览器阻止了自动复制。提示词已被选中：请按 Ctrl+C（Mac 按 Cmd+C）复制。',
-      s_tryOk:'提示词已复制，{n} 已在新标签页打开。请在那里粘贴（Ctrl+V 或 Cmd+V）并自己按发送。',
-      s_tabBlockedCopied:'你的浏览器阻止了新标签页。请自己打开 {n}，然后在那里粘贴你的提示词（已经复制好了）。',
-      s_tabBlocked:'你的浏览器阻止了新标签页。请自己打开 {n}，然后在那里粘贴你的提示词。',
-      s_tryNoCopy:'{n} 已在新标签页打开，但你的浏览器阻止了自动复制。请回到这里：提示词已被选中。按 Ctrl+C（Mac 按 Cmd+C）复制，然后粘贴到 {n}。',
-      s_added:'已添加到你的提示词。请读一读，需要的话可以修改。',
-      s_langRebuilt:'回答语言已更改，你的提示词已更新。',
-      s_langHint:'回答语言已更改。请更新提示词中的“Please answer in…”这句话，或再次按“Build My Prompt”。',
-      c_n:'已勾选 {n} / {t}', c_all:'太棒了！你是提示词高手。',
-      imp_h:'让你的提示词更好的建议', imp_perfect:'很棒的提示词！它涵盖了 RTCF 的全部四个部分和学习规则。',
-      o_short:'你的主题很短（“{t}”）。试试写成完整的问题，例如“Why…?”（为什么……？）或“How does…?”（……是怎样……的？）',
-      o_vague:'“it”“this”“stuff”这类词很含糊。请说出你指的具体事物。',
-      o_shortP:'你的提示词相当短。补充关于你自己和你怎样学习最好的细节，通常会得到好得多的回答。',
-      o_longP:'你的提示词很长。试着删掉重复的内容。好的提示词是清楚，而不只是长。',
-      o_limit:'加上一个限制，例如“每个回答不超过 100 个词”或“问我 3 个问题”。'
-    },
-    rtclf:[['角色','AI 应该是谁？（导师、问答主持人或教练）'],['任务','AI 应该做什么？（帮你练习、考你）'],['背景','AI 需要知道什么？（你的年龄、科目、主题、补充细节）'],['格式','答案应该是什么样子？（步骤、例子、故事、图表）']],
-    legend:{age:'你几岁？', goal:'你的学习目标是什么？', role:'AI 应该扮演谁？', subject:'哪一个科目？', style:'你希望 AI 怎样讲解？', approach:'你希望 AI 怎样帮助你学习？', plang:'AI 应该用哪种语言回答？'},
-    opt:{
-      age:{'8-10':'8–10 岁','11-13':'11–13 岁','14-17':'14–17 岁'},
-      goal:{understand:'讲解困难的主题',homework:'练习功课',exam:'准备测验',remember:'帮我记住知识点',language:'练习语言',writing:'提高写作能力',research:'研究一个主题',problem:'解决一个问题'},
-      role:{tutor:'友好的导师',quiz:'有趣的问答主持人',coach:'耐心的教练',game:'学习游戏设计师'},
-      subject:{bm:'马来语 (Bahasa Melayu)',english:'英语',math:'数学',science:'科学',chinese:'华文',history:'历史',geography:'地理',other:'其他'},
-      style:{simple:'简单的讲解和例子',steps:'分步骤讲解',analogy:'真实生活故事或比喻',visual:'图像或图表式讲解',challenge:'有挑战性的问题'},
-      approach:{hints:'先给提示再给答案',questions:'一次问我一个问题',quiz:'考考我并给出反馈',mistakes:'解释我的错误',guide:'一步一步引导我完成解答'},
-      plang:{en:'',ms:'',zh:''}
-    },
-    chk:['我有没有告诉 AI 我想学什么？','我有没有说明我的学校程度？','我有没有告诉 AI 如何讲解这个主题？','我有没有要求 AI 帮我思考，而不是马上给出答案？','我有没有检查答案是否合理？'],
-    tips:{
-      R:['R – 你告诉了 AI 它该扮演谁。','R – 角色：告诉 AI 它应该是谁。'],
-      T:['T – 你告诉了 AI 要做什么。','T – 任务：说明你想让 AI 做什么。'],
-      C:['C – 你提供了背景（你的年龄、科目和主题）。','C – 背景：告诉 AI 你的年龄或程度、科目和主题，AI 才会用合适的词语。'],
-      F:['F – 你说明了答案应该是什么样子。','F – 格式：说明你希望怎样讲解（步骤、例子、故事、图表）。'],
-      think:['你要求 AI 帮你思考并检查你的理解。','要求 AI 帮你思考并检查你的理解，而不是马上给出答案。'],
-      honest:['你要求 AI 诚实并帮你核对事实。','要求 AI 在不确定时说出来，并提醒你核对事实。'],
-      fair:['你明确说明 AI 不应替你完成要评分的作业。','告诉 AI 不要替你完成要评分的作业。']
-    },
-    p:{
-      subjects:{bm:'马来语 (Bahasa Melayu)',english:'英语',math:'数学',science:'科学',chinese:'华文',history:'历史',geography:'地理'},
-      roles:{tutor:{noun:'导师',extra:''},quiz:{noun:'问答主持人',extra:'让问答像友好的游戏节目一样有趣、令人兴奋。'},coach:{noun:'教练',extra:'保持冷静和耐心，为我的小进步喝彩，绝不催促我。'},game:{noun:'学习游戏设计师',extra:'把学习变成有挑战、积分或关卡的有趣游戏，但要确保真正学到东西。'}},
-      age:{
-        '8-10':{tone:'开朗、耐心、爱鼓励人',lang:'非常简单的词语和短句，并在第一次用到新词或难词时解释它'},
-        '11-13':{tone:'友好、耐心、爱鼓励人',lang:'清楚简单的语言，用到新的学科词语时用简单的话解释'},
-        '14-17':{tone:'友好、尊重人、爱鼓励人',lang:'清楚的语言，可以包含一些学科词汇（简短解释新术语），并稍微深入一些'}
-      },
-      goal:{
-        understand:'我的目标是真正理解一个困难的主题，而不只是死记硬背。',
-        homework:'我的目标是练习我的功课，并自己做出答案，所以请不要替我做。',
-        exam:'我的目标是通过复习、找出自己知识上的漏洞并练习重要概念，为测验或考试做准备。',
-        remember:'我的目标是记住一些知识点，请用记忆技巧、简短测验和反复练习帮助我。',
-        language:'我的目标是一步一步练习一种语言（单词、句子、阅读或写作），请温和地纠正并解释我的错误。',
-        writing:'我的目标是提高写作能力。请就我的想法、结构和清晰度给我反馈，但不要替我重写所有内容，准备好后请我贴上我的文章。',
-        research:'我的目标是研究这个主题。请帮我提出好问题、找出关键概念并决定要查什么，并提醒我用自己的话来写。',
-        problem:'我的目标是解决一个问题：把它拆成更小的部分，自己想清楚。'
-      },
-      style:{
-        simple:'请用简单的词语讲解，并给我一两个简单的例子。',
-        steps:'请把讲解分成简短的编号步骤，让我能跟上每一步。',
-        analogy:'请用与我已知事物相关的真实生活故事或比喻来讲解。',
-        visual:'请用图像化的方式讲解。用键盘字符做成简单的文字图表、表格或带标签的草图，并说明每个部分表示什么。',
-        challenge:'请用有挑战性的问题拓展我的思维。先从温和的开始，每当我答对就稍微加难。'
-      },
-      approach:{
-        hints:['先给提示再给答案。先给一个小提示，只有在我要求或卡住时才给更大的提示，等我真正尝试过之后才显示完整答案。','先问我已经知道什么或试过什么，然后给我第一个小提示。然后停下来等我回复。'],
-        questions:['一次问我一个问题来引导我思考：只问一个问题，然后停下来等我回答再继续。','先问我一个问题，了解我已经知道什么。然后停下来等我回答。'],
-        quiz:['考考我，一次只问一个问题，每次都等我回答。每次回答后给我反馈：我答对了什么、要改进什么，并简短解释。','先出一道简单的测验题。然后停下来等我回答。'],
-        mistakes:['解释我的错误。当我分享我的作业或答案时，先告诉我哪些做对了，再指出哪里出了错，解释为什么，并让我自己再试一次。','先请我分享我的答案或尝试，并告诉我你准备好看了。'],
-        guide:['一步一步引导我完成解答。一次只做一步，在展示下一步之前先让我试试，并等我回复。','先确认我明白题目，然后只引导我完成第一步。然后停下来等我回复。']
-      },
-      one:'一次不要问超过一个问题。',
-      think:'请帮助我思考，而不是直接给我最终答案，并通过向我提问和给我反馈来确认我真的理解了。',
-      honest:'请诚实：如果你对某事不确定，请说出来，并提醒我在课本中、向老师请教或在可靠的来源核对重要事实。',
-      fair:'如果这是要评分的学校作业（例如功课或测验），请帮助我学习，但不要替我完成。',
-      privacy:'请不要向我索取个人信息，例如我的全名、学校、地址或电话号码。',
-      langName:{en:'英语',ms:'马来语 (Bahasa Melayu)',zh:'简体中文'}
-    }
-  };
-  var SEP = '␞';   // separates the English and the Chinese part of a message
-
-  /* =====================================================================
-     OPTION VALUES (language-free) – labels come from I18N[lang].opt
-     ===================================================================== */
-  var VALUES = {
-    age:['8-10','11-13','14-17'],
-    goal:['understand','homework','exam','remember','language','writing','research','problem'],
-    role:['tutor','quiz','coach','game'],
-    subject:['bm','english','math','science','chinese','history','geography','other'],
-    style:['simple','steps','analogy','visual','challenge'],
-    approach:['hints','questions','quiz','mistakes','guide'],
-    plang:['en','ms','zh']
-  };
-  var ICONS = {
-    goal:{understand:'💡',homework:'📝',exam:'🎯',remember:'🧠',language:'🗣️',writing:'✍️',research:'🔎',problem:'🧩'},
-    role:{tutor:'🎓',quiz:'🎤',coach:'🏅',game:'🎮'},
-    subject:{bm:'📖',english:'🔤',math:'➗',science:'🔬',chinese:'🏮',history:'🏛️',geography:'🌏',other:'⭐'}
-  };
-  var INTERACTIVE = {hints:true, questions:true, quiz:true, mistakes:false, guide:true};
-  var GROUPS = [
-    {id:'age', host:'g-age', req:true}, {id:'goal', host:'g-goal', req:true}, {id:'role', host:'g-role', req:true}, {id:'subject', host:'g-subject', req:true},
-    {id:'style', host:'g-style', req:true, stack:true}, {id:'approach', host:'g-approach', req:true, stack:true},
-    {id:'plang', host:'g-plang', req:true, help:'plangHelp'}
-  ];
-  var CHECK_COUNT = 5;
-
-  var LANG = 'en';
   function $(id){ return document.getElementById(id); }
-  function fill(s, vars){
-    if (vars) Object.keys(vars).forEach(function(n){ s = s.split('{'+n+'}').join(vars[n]); });
-    return s;
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  // English line on top, Chinese line directly below
+  function bi(en, zh, enCls){
+    var f = document.createDocumentFragment();
+    f.appendChild(el('span', enCls || 'en', en));
+    var z = el('span', 'zh', zh); z.lang = 'zh-Hans'; f.appendChild(z);
+    return f;
   }
-  // U() returns the English text plus SEP plus the Chinese explanation (if there is one)
-  function U(k, vars){
-    var s = I18N[LANG].ui[k]; if (s === undefined) s = I18N.en.ui[k] || k;
-    var z = ZH.ui[k];
-    return fill(s, vars) + (z ? SEP + fill(z, vars) : '');
-  }
-  function E(s){ return String(s).split(SEP)[0]; }
-  // Write English text with the Chinese explanation underneath it
-  function setBi(el, str, inline, prefix){
-    var parts = String(str||'').split(SEP);
-    el.textContent = '';
-    if (!parts[0]) return;
-    var w = document.createElement('span'); w.className = 'bi';
-    w.appendChild(document.createTextNode((prefix||'') + parts[0]));
-    if (parts[1]){ var z = document.createElement('span'); z.className = 'zh'+(inline?' in':''); z.lang = 'zh-Hans'; z.textContent = parts[1]; w.appendChild(z); }
-    el.appendChild(w);
-  }
-  function clean(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
-  function val(name){ var r = document.querySelector('input[name="'+name+'"]:checked'); return r ? r.value : ''; }
-  function optLabel(g, v){
-    var t = I18N[LANG].opt[g][v], z = ZH.opt[g][v];
-    return ((ICONS[g] && ICONS[g][v]) ? ICONS[g][v]+' '+t : t) + (z ? SEP + z : '');
-  }
+  function setBi(node, en, zh){ node.textContent = ''; node.appendChild(bi(en, zh)); }
 
-  /* ---------- Build radio groups (once) ---------- */
-  GROUPS.forEach(function(g){
-    var host = $(g.host);
-    host.setAttribute('role','group');
-    var fs = document.createElement('fieldset'); fs.id = 'fs-'+g.id;
-    var lg = document.createElement('legend');
-    var lt = document.createElement('span'); lt.className='legtxt'; lg.appendChild(lt);
-    if (g.req){
-      lg.appendChild(document.createTextNode(' '));
-      var star = document.createElement('span'); star.className='req'; star.textContent='*'; star.setAttribute('aria-hidden','true'); lg.appendChild(star);
-      var sr = document.createElement('span'); sr.className='sr reqsr'; lg.appendChild(sr);
-    } else {
-      lg.appendChild(document.createTextNode(' '));
-      var op = document.createElement('span'); op.className='note optlabel'; lg.appendChild(op);
-    }
-    var lz = document.createElement('span'); lz.className='zh legzh'; lz.lang='zh-Hans'; lg.appendChild(lz);
-    fs.appendChild(lg);
-    if (g.help){ var hp = document.createElement('p'); hp.className='help'; hp.setAttribute('data-i18n', g.help); fs.appendChild(hp); }
-    var chips = document.createElement('div'); chips.className = 'chips'+(g.stack?' stack':'');
-    VALUES[g.id].forEach(function(v,i){
-      var d = document.createElement('div'); d.className='chip';
-      var inp = document.createElement('input'); inp.type='radio'; inp.name=g.id; inp.value=v; inp.id=g.id+'-'+i;
-      if (g.id==='plang' && v==='en'){ inp.checked = true; inp.defaultChecked = true; }
-      if (g.req) inp.setAttribute('aria-describedby','e-'+g.id);
-      var lab = document.createElement('label'); lab.setAttribute('for',inp.id);
-      d.appendChild(inp); d.appendChild(lab); chips.appendChild(d);
-    });
-    fs.appendChild(chips);
-    if (g.req){ var err = document.createElement('p'); err.className='err'; err.id='e-'+g.id; fs.appendChild(err); }
-    host.appendChild(fs);
-  });
-
-  /* ---------- Checklist (built once, labels updated per language) ---------- */
+  /* ---------- Welcome card: the four RTCF parts (kept wording) ---------- */
+  var RTCF = [
+    ['R','Role','角色','Who should AI be? (a tutor, quiz master or coach)','AI 应该是谁？（导师、问答主持人或教练）','--R'],
+    ['T','Task','任务','What should AI do? (help you practise, quiz you)','AI 应该做什么？（帮你练习、考你）','--Td'],
+    ['C','Context','背景','What does AI need to know? (your age, subject, topic, extra details)','AI 需要知道什么？（你的年龄、科目、主题、补充细节）','--Cd'],
+    ['F','Format','格式','How should the answer look? (steps, examples, story, diagram)','答案应该是什么样子？（步骤、例子、故事、图表）','--F']
+  ];
   (function(){
-    var ul = $('checks');
-    for (var i=0;i<CHECK_COUNT;i++){
-      var li = document.createElement('li'); li.className='check';
-      var cb = document.createElement('input'); cb.type='checkbox'; cb.id='chk'+i;
-      var lb = document.createElement('label'); lb.setAttribute('for', cb.id);
-      cb.addEventListener('change', updateCheckStatus);
-      li.appendChild(cb); li.appendChild(lb); ul.appendChild(li);
-    }
-  })();
-
-  /* ---------- Apply language to the whole page ---------- */
-  function applyLang(){
-    var P = I18N[LANG];
-    document.documentElement.lang = P.htmlLang;
-    document.title = P.ui.title;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(el){
-      var k = el.getAttribute('data-i18n'), inl = (k === 'optional');
-      if (k === 'otherLabel' || k === 'topicLabel' || k === 'extraLabel') el.textContent = E(U(k)); else setBi(el, U(k), inl);
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('[data-zh]'), function(el){ el.textContent = ZH.ui[el.getAttribute('data-zh')] || ''; });
-    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-ph]'), function(el){
-      var k = el.getAttribute('data-i18n-ph'), s = U(k).split(SEP);
-      el.setAttribute('placeholder', s[0] + (s[1] ? '  |  ' + s[1] : ''));
-    });
-    // RTCF cards
-    var ul = $('rtclf-list'); ul.innerHTML = '';
-    P.rtclf.forEach(function(r){
-      var li = document.createElement('li');
-      var l = document.createElement('span'); l.className='l'; l.setAttribute('aria-hidden','true'); l.textContent = r[0];
-      var zr = ZH.rtclf[P.rtclf.indexOf(r)];
-      var n = document.createElement('span'); n.className='n'; n.textContent = r[1];
-      var nz = document.createElement('span'); nz.className='zh in'; nz.lang='zh-Hans'; nz.textContent = zr[0]; n.appendChild(nz);
-      var q = document.createElement('span'); q.className='q'; q.textContent = r[2];
-      var qz = document.createElement('span'); qz.className='zh'; qz.lang='zh-Hans'; qz.textContent = zr[1]; q.appendChild(qz);
+    var ul = $('rtcf-list');
+    RTCF.forEach(function(r){
+      var li = el('li');
+      var l = el('span','l',r[0]); l.setAttribute('aria-hidden','true'); l.style.background = 'var('+r[5].replace('--R','--Rd').replace('--F','--Fd')+')';
+      var n = el('span','n'); n.appendChild(el('span','en',r[1])); var nz = el('span','zh',r[2]); nz.lang='zh-Hans'; n.appendChild(nz);
+      var q = el('span','q',r[3]); var qz = el('span','zh',r[4]); qz.lang='zh-Hans'; q.appendChild(qz);
       li.appendChild(l); li.appendChild(n); li.appendChild(q); ul.appendChild(li);
     });
-    // groups
-    GROUPS.forEach(function(g){
-      var fs = $('fs-'+g.id);
-      fs.querySelector('.legtxt').textContent = P.legend[g.id];
-      fs.querySelector('.legzh').textContent = ZH.legend[g.id];
-      var sr = fs.querySelector('.reqsr'); if (sr) sr.textContent = E(U('required'));
-      var op = fs.querySelector('.optlabel'); if (op) setBi(op, U('optional'), true);
-      VALUES[g.id].forEach(function(v,i){ setBi(fs.querySelector('label[for="'+g.id+'-'+i+'"]'), optLabel(g.id, v)); });
-      var err = $('e-'+g.id); if (err) setBi(err, U('e_'+g.id));
+  })();
+
+  /* ---------- Chip data ----------
+     en/zh = what the student sees on the chip
+     pe/pz = the phrase placed in the English / Chinese prompt (so the sentence reads naturally) */
+  var CH = {
+    R:[
+      {k:'tutor',    en:'A patient tutor',            zh:'耐心的辅导老师',     pe:'a patient tutor',            pz:'耐心的辅导老师'},
+      {k:'explainer',en:'A friendly explainer',       zh:'亲切的讲解员',       pe:'a friendly explainer',       pz:'亲切的讲解员'},
+      {k:'partner',  en:'A conversation partner',     zh:'对话伙伴',           pe:'a conversation partner',     pz:'对话伙伴'},
+      {k:'story',    en:'A storyteller',              zh:'故事大王',           pe:'a storyteller',              pz:'故事大王'},
+      {k:'coach',    en:'A writing coach',            zh:'写作教练',           pe:'a writing coach',            pz:'写作教练'},
+      {k:'buddy',    en:'A study buddy for my grade', zh:'懂我年级的学习伙伴', pe:'a study buddy for my grade', pz:'懂我年级的学习伙伴'}
+    ],
+    T1:[
+      {k:'explain',  en:'Explain something',           zh:'给我解释一个概念', pe:'explain something',            pz:'解释一个概念'},
+      {k:'quiz',     en:'Make me a quiz',              zh:'出一份小测验',     pe:'make me a quiz',               pz:'出一份小测验'},
+      {k:'remember', en:'Help me remember facts',      zh:'帮我记住知识点',   pe:'help me remember facts',       pz:'记住知识点'},
+      {k:'writing',  en:'Improve my writing',          zh:'提升写作作文',     pe:'improve my writing',           pz:'提升写作'},
+      {k:'flash',    en:'Make study flashcards',       zh:'做复习卡片',       pe:'make study flashcards',        pz:'做复习卡片'},
+      {k:'examples', en:'Give me examples',            zh:'给我举例子',       pe:'give me examples',             pz:'举例子'},
+      {k:'test',     en:'Help me practice for a test', zh:'帮我备考',         pe:'help me practice for a test',  pz:'备考'}
+    ],
+    T2:[
+      {k:'fractions',en:'Fractions',            zh:'分数',             pe:'fractions',            pz:'分数'},
+      {k:'volcano',  en:'Volcanoes',            zh:'火山',             pe:'volcanoes',            pz:'火山'},
+      {k:'past',     en:'Past tense',           zh:'过去式',           pe:'past tense',           pz:'过去式'},
+      {k:'army',     en:'The Terracotta Army',  zh:'兵马俑',           pe:'the Terracotta Army',  pz:'兵马俑'},
+      {k:'photo',    en:'Photosynthesis',       zh:'光合作用',         pe:'photosynthesis',       pz:'光合作用'},
+      {k:'sky',      en:'Why the sky is blue',  zh:'天空为什么是蓝的', pe:'why the sky is blue',  pz:'天空为什么是蓝的'}
+    ],
+    C1:[
+      {k:'p13', en:'Primary P1–P3',   zh:'小学 1–3 年级',            pe:'Primary P1–P3',   pz:'小学 1–3 年级'},
+      {k:'p46', en:'Primary P4–P6',   zh:'小学 4–6 年级',            pe:'Primary P4–P6',   pz:'小学 4–6 年级'},
+      {k:'low', en:'Lower Secondary', zh:'初中 一–三年级（初一–初三）', pe:'Lower Secondary', pz:'初中 一–三年级'},
+      {k:'up',  en:'Upper Secondary', zh:'高中 四–六年级（初四–初六）', pe:'Upper Secondary', pz:'高中 四–六年级'}
+    ],
+    C2:[
+      {k:'dont',  en:"I don't get this yet",        zh:'我还不太懂',     pe:"I don't get this yet",        pz:'我还不太懂'},
+      {k:'test',  en:'I have a test tomorrow',      zh:'我明天有考试',   pe:'I have a test tomorrow',      pz:'我明天有考试'},
+      {k:'basic', en:'I already know the basics',   zh:'我已经会基础了', pe:'I already know the basics',   pz:'我已经会基础了'},
+      {k:'diff',  en:"I can't tell the difference", zh:'我分不清区别',   pe:"I can't tell the difference", pz:'我分不清区别'},
+      {k:'mem',   en:"I can't remember facts",      zh:'我记不住',       pe:"I can't remember facts",      pz:'我记不住'}
+    ],
+    F:[
+      {k:'bul', en:'3 simple bullet points',     zh:'三个简单要点',   pe:'give your answer as 3 simple bullet points',            pz:'用三个简单要点回答'},
+      {k:'tab', en:'A table',                    zh:'一个表格',       pe:'show your answer as a table',                           pz:'用一个表格回答'},
+      {k:'fla', en:'5 flashcards (Q and A)',     zh:'五张问答复习卡', pe:'give me 5 flashcards, each with a question and an answer', pz:'做成五张问答复习卡'},
+      {k:'sto', en:'A short story example',      zh:'一个小故事',     pe:'explain it with a short story example',                 pz:'用一个小故事来举例说明'},
+      {k:'sho', en:'Under 10 sentences',         zh:'不超过十句话',   pe:'keep your answer under 10 sentences',                   pz:'回答不超过十句话'},
+      {k:'num', en:'Numbered step-by-step list', zh:'分步骤编号列表', pe:'give your answer as a numbered step-by-step list',      pz:'用分步骤的编号列表回答'}
+    ]
+  };
+
+  /* ---------- Section layout ---------- */
+  var SECTIONS = [
+    {id:'R', en:'Who should the AI be?', zh:'让 AI 当谁？',
+      groups:[{id:'R'}], free:{key:'R', en:'Other role:', zh:'其他角色：', excl:true}},
+    {id:'T', en:'What should it do?', zh:'让它做什么？',
+      groups:[{id:'T1', en:"What's the job?", zh:'要它做什么？'},
+              {id:'T2', en:'What about? Try one, or type your own.', zh:'具体讲什么？点一个或自己写'}],
+      free:{key:'T', en:'My own topic:', zh:'我自己的题目：', excl:true, chipGroup:'T2'}},
+    {id:'C', en:"Who is it for? What's the situation?", zh:'给谁看？什么情况？',
+      groups:[{id:'C1', en:'What grade are you in?', zh:'你读几年级？'},
+              {id:'C2', en:"What's the situation?", zh:'什么情况？'}],
+      free:{key:'C', en:'My situation:', zh:'我的情况：', excl:false, chipGroup:'C2'}},
+    {id:'F', en:'What should the answer look like?', zh:'回答长什么样？',
+      groups:[{id:'F'}], free:{key:'F', en:'Other format:', zh:'其他格式：', excl:true}},
+    {id:'X', badge:'+', en:'Anything else I should know?', zh:'还有什么想让 AI 知道的？',
+      groups:[], free:{key:'X', en:'Tell the AI more (optional):', zh:'补充说明（可选）：', excl:false, area:true}}
+  ];
+
+  var state = {R:null, T1:null, T2:null, C1:null, C2:null, F:null};
+  var txt = {R:'', T:'', C:'', F:'', X:''};
+  var FREE_GROUP = {R:'R', T:'T2', C:'C2', F:'F', X:null};   // which chip row each free-text box belongs to
+  var EXCL = {R:true, T:true, C:false, F:true, X:false};       // typing replaces the chip (single-answer slots); situation combines
+  var inputs = {};
+
+  /* ---------- Build the 4 sections ---------- */
+  var host = $('builder');
+  SECTIONS.forEach(function(S){
+    var sec = el('section','sec '+S.id); sec.setAttribute('aria-labelledby','h-'+S.id);
+    var h = el('div','sec-h');
+    var b = el('div','badge',S.badge || S.id); b.setAttribute('aria-hidden','true');
+    var h2 = el('h2'); h2.id = 'h-'+S.id; h2.appendChild(bi(S.en, S.zh));
+    h.appendChild(b); h.appendChild(h2); sec.appendChild(h);
+    S.groups.forEach(function(g){
+      var fs = el('div','grp'); fs.setAttribute('role','group');
+      if (g.en){
+        var lab = el('p','glabel'); lab.id = 'l-'+g.id; lab.appendChild(bi(g.en, g.zh));
+        fs.setAttribute('aria-labelledby','l-'+g.id); fs.appendChild(lab);
+      } else fs.setAttribute('aria-labelledby','h-'+S.id);
+      var row = el('div','chips');
+      CH[g.id].forEach(function(c){
+        var btn = el('button','chip'); btn.type='button'; btn.setAttribute('aria-pressed','false');
+        btn.dataset.g = g.id; btn.dataset.k = c.k;
+        btn.appendChild(bi(c.en, c.zh));
+        row.appendChild(btn);
+      });
+      fs.appendChild(row); sec.appendChild(fs);
     });
-    // checklist
-    for (var i=0;i<CHECK_COUNT;i++) setBi(document.querySelector('label[for="chk'+i+'"]'), P.chk[i] + SEP + ZH.chk[i]);
-    updateCheckStatus();
-  }
-
-  /* ---------- Changing the ANSWER language after the prompt is built ---------- */
-  var lastLang = '';
-  function lastOutputUnedited(){ return lastGenerated && $('output').value === lastGenerated; }
-  function onPromptLangChange(){
-    $('improve').hidden = true; $('improve-list').innerHTML = '';
-    if ($('result-card').hidden) return;
-    renderZh();
-    var out = $('output'), was = lastOutputUnedited(), now = langSentence();
-    if (lastLang && out.value.indexOf(lastLang) > -1){
-      out.value = out.value.split(lastLang).join(now);
-      if (was) lastGenerated = out.value;
-      lastLang = now; setStatus(U('s_langRebuilt'), 'ok');
-    } else if (clean(out.value)) { setStatus(U('s_langHint'), 'warn'); }
-  }
-
-  /* ---------- Form events ---------- */
-  $('builder').addEventListener('change', function(e){
-    if (e.target && e.target.name === 'subject'){
-      var other = val('subject') === 'other';
-      $('f-subjectOther').hidden = !other;
-      if (other) { $('subjectOther').focus(); } else { setInvalid('f-subjectOther', false); }
-    }
-    if (e.target && e.target.type === 'radio'){ var fs = e.target.closest('fieldset'); if (fs) fs.classList.remove('invalid'); }
-    if (e.target && e.target.name === 'plang') onPromptLangChange();
+    var free = el('div','free');
+    var lb = el('label'); lb.htmlFor = 'free-'+S.free.key; lb.appendChild(bi(S.free.en, S.free.zh));
+    var inp = S.free.area ? el('textarea') : el('input'); if (!S.free.area) inp.type='text'; if (S.free.area) inp.rows = 3; inp.id='free-'+S.free.key; inp.maxLength = S.free.area ? 250 : 120; inp.autocomplete='off'; inp.setAttribute('autocapitalize','off');
+    inputs[S.free.key] = inp;
+    free.appendChild(lb); free.appendChild(inp); sec.appendChild(free);
+    host.appendChild(sec);
   });
-  $('topic').addEventListener('input', function(){ if (clean(this.value)) setInvalid('f-topic', false); });
-  $('subjectOther').addEventListener('input', function(){ if (clean(this.value)) setInvalid('f-subjectOther', false); });
-  $('extra').addEventListener('input', function(){ $('extra-count').textContent = this.value.length+' / 500'; });
 
-  function setInvalid(id, on){
-    var el = $(id); if (!el) return;
-    el.classList.toggle('invalid', !!on);
-    var input = el.querySelector('input[type=text]'); if (input) input.setAttribute('aria-invalid', on ? 'true' : 'false');
-  }
-
-  /* ---------- Validation ---------- */
-  function collectErrors(){
-    var errors = [];
-    GROUPS.forEach(function(g){ if (g.req && !val(g.id)) errors.push({id:g.id, focus:g.id+'-0', msg:U('e_'+g.id)}); });
-    if (val('subject')==='other' && !clean($('subjectOther').value)) errors.push({id:'subjectOther', focus:'subjectOther', msg:U('e_subjectOther')});
-    if (!clean($('topic').value)) errors.push({id:'topic', focus:'topic', msg:U('e_topic')});
-    errors.sort(function(a,b){
-      var A=$(a.focus), B=$(b.focus); if(!A||!B) return 0;
-      return (A.compareDocumentPosition(B) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+  host.addEventListener('click', function(e){
+    var btn = e.target.closest && e.target.closest('.chip'); if (!btn) return;
+    var g = btn.dataset.g, k = btn.dataset.k;
+    state[g] = (state[g] === k) ? null : k;
+    // picking a chip clears the typed answer in single-answer slots (and vice versa, see the input handler)
+    if (state[g]){ Object.keys(FREE_GROUP).forEach(function(key){ if (FREE_GROUP[key] === g && EXCL[key]){ txt[key] = ''; inputs[key].value = ''; } }); }
+    update();
+  });
+  Object.keys(inputs).forEach(function(key){
+    inputs[key].addEventListener('input', function(){
+      txt[key] = clean(this.value);
+      if (txt[key] && EXCL[key]) state[FREE_GROUP[key]] = null;
+      update();
     });
-    return errors;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="olang"]'), function(r){ r.addEventListener('change', update); });
+
+  /* ---------- Prompt building ---------- */
+  function clean(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  function stripEnd(t){ return clean(t).replace(/[.。!！?？]+$/,''); }
+  function endS(t, zh){ t = clean(t); if (!t) return ''; return /[.!?。！？]$/.test(t) ? t : t + (zh ? '。' : '.'); }
+  function chipOf(g){ return CH[g].filter(function(c){ return c.k === state[g]; })[0]; }
+  function curLang(){ var r = document.querySelector('input[name="olang"]:checked'); return r ? r.value : 'zh'; }
+  var PH_TXT = '[ ____ ]';
+
+  // Returns a list of clauses; each clause is a list of pieces {t:text, s:section, ph:bool}.
+  // preview=true shows [ ____ ] for empty slots; preview=false skips clauses that would have a hole.
+  function build(L, preview){
+    var z = L === 'zh', k = z ? 'pz' : 'pe';
+    var role = state.R ? chipOf('R')[k] : stripEnd(txt.R);
+    var t1 = state.T1 ? chipOf('T1')[k] : '';
+    var topic = state.T2 ? chipOf('T2')[k] : stripEnd(txt.T);
+    var grade = state.C1 ? chipOf('C1')[k] : '';
+    var sit = ''; if (state.C2) sit = endS(chipOf('C2')[k], z); if (txt.C) sit = (sit ? sit + ' ' : '') + endS(txt.C, z);
+    var fChip = state.F ? chipOf('F')[k] : '', fTyped = state.F ? '' : stripEnd(txt.F);
+
+    function P(t, s){ return {t:t, s:s}; }
+    function slot(v, s){ return v ? P(v, s) : (preview ? {t:PH_TXT, s:s, ph:true} : null); }
+    function mk(parts){
+      if (parts.some(function(p){ return p === null; })) return null;
+      return parts.map(function(p){ return typeof p === 'string' ? {t:p} : p; });
+    }
+    var out = [];
+    function add(c){ if (c) out.push(c); }
+
+    add(mk(z ? ['请你扮演', slot(role,'R'), '。'] : ['You are ', slot(role,'R'), '.']));
+
+    if (preview || (t1 && topic)) add(mk(z ? ['请帮我', slot(t1,'T'), '，内容是关于', slot(topic,'T'), '。'] : ['Please ', slot(t1,'T'), ' about ', slot(topic,'T'), '.']));
+    else if (t1) add(mk(z ? ['请帮我', P(t1,'T'), '。'] : ['Please ', P(t1,'T'), '.']));
+    else if (topic) add(mk(z ? ['请帮我学习', P(topic,'T'), '。'] : ['Please help me with ', P(topic,'T'), '.']));
+
+    add(mk(z ? ['我是', slot(grade,'C'), '的学生。'] : ['I am a student in ', slot(grade,'C'), '.']));
+
+    if (sit) add([P(sit,'C')]);
+    else if (preview) add(mk([slot('', 'C'), z ? '。' : '.']));
+
+    if (fChip) add(z ? mk(['请', P(fChip,'F'), '。']) : mk(['Please ', P(fChip,'F'), '.']));
+    else if (fTyped) add(z ? mk(['请用这个格式：', P(fTyped,'F'), '。']) : mk(['Please use this format: ', P(fTyped,'F'), '.']));
+    else if (preview) add(mk(z ? ['请', slot('', 'F'), '。'] : ['Please ', slot('', 'F'), '.']));
+
+    if (txt.X) add(mk(z ? ['另外，', P(endS(txt.X, true),'X')] : ['One more thing: ', P(endS(txt.X, false),'X')]));
+
+    if (grade || preview) add([{t: z ? '请按我年级的程度调整难度和深浅。' : 'Adjust the difficulty for my grade level.'}]);
+    add([{t: z ? '请帮助我思考，不要一上来就直接给我最终答案。' : 'Help me think instead of just giving me the final answer straight away.'}]);
+    add([{t: z ? '请用中文回答。' : 'Answer in English.'}]);
+    return out;
   }
-  function validate(){
-    var errors = collectErrors(), bad = {};
-    errors.forEach(function(e){ bad[e.id] = true; });
-    GROUPS.forEach(function(g){ if (g.req) $('fs-'+g.id).classList.toggle('invalid', !!bad[g.id]); });
-    setInvalid('f-subjectOther', !!bad.subjectOther);
-    setInvalid('f-topic', !!bad.topic);
-    return errors;
+  function plain(clauses, L){ return clauses.map(function(c){ return c.map(function(p){ return p.t; }).join(''); }).join(L === 'zh' ? '' : ' '); }
+  function cleanPrompt(){ var L = curLang(); return plain(build(L, false), L); }
+
+  /* ---------- Progress, preview and buttons ---------- */
+  function filled(){
+    return {R: !!(state.R || txt.R), T: !!(state.T1 || state.T2 || txt.T), C: !!(state.C1 || state.C2 || txt.C), F: !!(state.F || txt.F)};
   }
-  function showSummary(errors){
-    var s = $('summary'); s.innerHTML = '';
-    if (!errors.length){ s.classList.remove('show'); return; }
-    var h = document.createElement('h3'); setBi(h, errors.length===1 ? U('sum1') : U('sumN',{n:errors.length}));
-    var ul = document.createElement('ul');
-    errors.forEach(function(e){
-      var li = document.createElement('li'), a = document.createElement('a');
-      a.href = '#'+e.focus; setBi(a, e.msg);
-      a.addEventListener('click', function(ev){ ev.preventDefault(); var t=$(e.focus); if(t) t.focus(); });
-      li.appendChild(a); ul.appendChild(li);
+  function renderPreview(){
+    var L = curLang(), box = $('preview'); box.textContent = '';
+    build(L, true).forEach(function(c, i){
+      if (i && L !== 'zh') box.appendChild(document.createTextNode(' '));
+      c.forEach(function(p){
+        if (!p.s) { box.appendChild(document.createTextNode(p.t)); return; }
+        var sp = el('span', (p.ph ? 'ph ' : '') + 's-' + p.s, p.t); box.appendChild(sp);
+      });
     });
-    s.appendChild(h); s.appendChild(ul); s.classList.add('show');
+  }
+  function update(){
+    Object.keys(state).forEach(function(g){
+      Array.prototype.forEach.call(document.querySelectorAll('.chip[data-g="'+g+'"]'), function(b){ b.setAttribute('aria-pressed', b.dataset.k === state[g] ? 'true' : 'false'); });
+    });
+    var f = filled(), n = (f.R?1:0) + (f.T?1:0) + (f.C?1:0) + (f.F?1:0);
+    setBi($('hint'), 'You’ve filled ' + n + ' of 4 slots — every slot helps AI guess less.', '已填 ' + n + '/4 项，写得越全 AI 猜得越少。');
+    renderPreview();
+    var ready = f.R && !!state.T1;
+    $('btn-gemini').disabled = !ready; $('btn-chatgpt').disabled = !ready;
+    $('trynote').hidden = ready;
   }
 
-  /* ---------- Prompt generation (RTCF) ---------- */
-  var lastGenerated = '';
-  var zhSnap = null;   // Chinese explanation of the prompt as it was built
-  function endSentence(t){ t = clean(t); return /[.!?。？！]$/.test(t) ? t : t + '.'; }
-  function langSentence(){ var code = val('plang') || 'en'; return 'Please answer in ' + I18N.en.p.langName[code] + '.'; }
-  function buildPrompt(){
-    var P = I18N.en.p;
-    var ageV = val('age'), age = P.age[ageV], ageText = ageV.replace('-','–');
-    var role = P.roles[val('role')], apprV = val('approach'), appr = P.approach[apprV];
-    var subject = val('subject')==='other' ? clean($('subjectOther').value) : P.subjects[val('subject')];
-    var topic = clean($('topic').value), extra = clean($('extra').value);
-
-    var who = ['Act as a '+age.tone+' '+role.noun+' for a student aged '+ageText+'.'];
-    if (role.extra) who.push(role.extra);
-    who.push(P.goal[val('goal')]);
-    who.push('The subject is '+subject+'. My topic or question is: '+endSentence(topic));
-    if (extra) who.push('More about me: '+endSentence(extra));
-
-    var how = ['Explain at my level, using '+age.lang+'.', P.style[val('style')], appr[0]];
-    if (INTERACTIVE[apprV]) how.push(P.one);
-    how.push('Help me think instead of handing me the final answer straight away, and check that I really understand by asking me questions and giving me feedback.');
-
-    var rules = ['Be honest: if you are not sure about something, say so, and remind me to check important facts in a textbook, with my teacher or in a reliable source.',
-      'If this is assessed school work (such as an assignment or test), help me learn but do not complete it for me.',
-      'Do not ask me for personal information such as my full name, school, address or phone number.',
-      langSentence(), appr[1]];
-
-    // Chinese explanation, built from the same choices (topic and notes are shown exactly as typed)
-    var Z = ZH.p, zAge = Z.age[ageV], zRole = Z.roles[val('role')], zAppr = Z.approach[apprV];
-    var zSubject = val('subject')==='other' ? clean($('subjectOther').value) : Z.subjects[val('subject')];
-    var zWho = ['请扮演一位'+zAge.tone+'的'+zRole.noun+'，辅导一位 '+ageText+' 岁的学生。'];
-    if (zRole.extra) zWho.push(zRole.extra);
-    zWho.push(Z.goal[val('goal')]);
-    zWho.push('科目是'+zSubject+'。我的主题或问题是：'+endSentence(topic));
-    if (extra) zWho.push('关于我的更多信息：'+endSentence(extra));
-    var zHow = ['请按我的水平讲解，使用'+zAge.lang+'。', Z.style[val('style')], zAppr[0]];
-    if (INTERACTIVE[apprV]) zHow.push(Z.one);
-    zHow.push(Z.think);
-    zhSnap = {who:zWho.join(' '), how:zHow.join(''), rules:[Z.honest, Z.fair, Z.privacy].join(''), last:zAppr[1]};
-
-    return [who.join(' '), how.join(' '), rules.join(' ')].join('\n\n');
-  }
-  function renderZh(){
-    var box = $('zhtext'); box.textContent = '';
-    if (!zhSnap) return;
-    var code = val('plang') || 'en';
-    var parts = [zhSnap.who, zhSnap.how, zhSnap.rules + '请用' + ZH.p.langName[code] + '回答。' + zhSnap.last];
-    parts.forEach(function(t){ var p = document.createElement('p'); p.textContent = t; box.appendChild(p); });
-  }
-
-  /* ---------- Output helpers ---------- */
+  /* ---------- Status line ---------- */
   var statusTimer = null;
-  function setStatus(msg, kind){
-    var s = $('status'); setBi(s, msg||''); s.className = 'status'+(kind?(' '+kind):'');
+  function say(en, zh, kind, keep){
+    var s = $('status'); s.className = 'status' + (kind ? ' ' + kind : ''); setBi(s, en, zh);
     clearTimeout(statusTimer);
-    if (msg && kind==='ok') statusTimer = setTimeout(function(){ s.textContent=''; s.className='status'; }, 12000);
+    if (!keep) statusTimer = setTimeout(function(){ s.textContent = ''; s.className = 'status'; }, 8000);
   }
-  function getPrompt(){ return $('output').value; }
-  function needPrompt(){
-    if (!clean(getPrompt())){ setStatus(U('s_need'), 'warn'); $('output').focus(); return true; }
-    return false;
-  }
-  async function copyText(text){
+
+  /* ---------- Copy (clipboard API, then textarea fallback, then select-for-manual-copy) ---------- */
+  function legacyCopy(text){
     try{
-      if (navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
-    }catch(e){ /* fall through to the older method */ }
-    try{
-      var ta = $('output');
-      if (ta.value !== text) return false;
-      ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
-      return !!(document.execCommand && document.execCommand('copy'));
+      var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      var ok = document.execCommand && document.execCommand('copy');
+      document.body.removeChild(ta); return !!ok;
     }catch(e){ return false; }
   }
-  function selectOutput(){ var ta=$('output'); ta.focus(); ta.select(); }
-  function manualCopyHelp(){ selectOutput(); setStatus(U('s_manual'), 'warn'); }
-
-  /* ---------- Buttons ---------- */
-  $('builder').addEventListener('submit', function(e){
-    e.preventDefault();
-    var errors = validate(); showSummary(errors);
-    if (errors.length){
-      $('summary').focus();
-      $('summary').scrollIntoView({block:'center', behavior:'smooth'});
-      return;
-    }
-    lastGenerated = buildPrompt(); lastLang = langSentence();
-    $('output').value = lastGenerated; renderZh();
-    ['result-card','check-card','reflect-card'].forEach(function(id){ $(id).hidden = false; });
-    updateCheckStatus();
-    $('improve').hidden = true;
-    setStatus(U('s_ready'), 'ok');
-    $('result-card').scrollIntoView({behavior:'smooth', block:'start'});
-    $('output').focus({preventScroll:true});
-  });
-
-  $('btn-copy').addEventListener('click', async function(){
-    if (needPrompt()) return;
-    var ok = await copyText(getPrompt());
-    if (ok) setStatus(U('s_copied'), 'ok'); else manualCopyHelp();
-  });
-
-  function tryWith(name, url){
-    return async function(){
-      if (needPrompt()) return;
-      var p = copyText(getPrompt());                 // start copying inside the click
-      var w = window.open(url, '_blank');            // (a 'noopener' feature would make this return null)
-      if (w) { try { w.opener = null; } catch (e) {} }
-      var ok = await p;
-      if (!w){
-        setStatus(U(ok ? 's_tabBlockedCopied' : 's_tabBlocked', {n:name}), 'warn');
-        if (!ok) selectOutput();
-        return;
-      }
-      if (ok) setStatus(U('s_tryOk', {n:name}), 'ok');
-      else { selectOutput(); setStatus(U('s_tryNoCopy', {n:name}), 'warn'); }
-    };
+  async function copyText(text){
+    try{ if (navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; } }catch(e){ /* fall through */ }
+    return legacyCopy(text);
   }
-  $('btn-gemini').addEventListener('click', tryWith('Gemini','https://gemini.google.com/'));
-  $('btn-chatgpt').addEventListener('click', tryWith('ChatGPT','https://chatgpt.com/'));
+  function selectForManualCopy(text){
+    // show the exact text that would be copied, selected, so Ctrl/Cmd+C works
+    var box = $('preview'); box.textContent = text; box.focus();
+    var r = document.createRange(); r.selectNodeContents(box);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    say('Your browser blocked copying. The prompt is selected: press Ctrl+C (Cmd+C on a Mac).', '浏览器阻止了自动复制。提示词已选中：请按 Ctrl+C（Mac 按 Cmd+C）。', 'warn', true);
+  }
+  function hasAnything(){ var f = filled(); return f.R || f.T || f.C || f.F; }
+
+  var copyBtn = $('btn-copy'), copyTimer = null;
+  function labelCopy(){ copyBtn.textContent = ''; copyBtn.appendChild(bi('Copy prompt', '复制提示词')); }
+  copyBtn.addEventListener('click', async function(){
+    if (!hasAnything()){ say('Pick at least one button first.', '请先点选至少一个按钮。', 'warn'); return; }
+    var text = cleanPrompt(), ok = await copyText(text);
+    if (!ok){ selectForManualCopy(text); return; }
+    copyBtn.textContent = ''; copyBtn.appendChild(bi('Copied!', '已复制'));
+    clearTimeout(copyTimer); copyTimer = setTimeout(labelCopy, 2000);
+    $('status').textContent = ''; $('status').className = 'status';
+  });
 
   $('btn-reset').addEventListener('click', function(){
-    $('builder').reset();
-    $('f-subjectOther').hidden = true;
-    GROUPS.forEach(function(g){ if (g.req) $('fs-'+g.id).classList.remove('invalid'); });
-    setInvalid('f-topic', false); setInvalid('f-subjectOther', false);
-    showSummary([]);
-    $('extra-count').textContent = '0 / 500';
-    $('output').value = ''; lastGenerated = ''; lastLang = ''; zhSnap = null; renderZh();
-    ['result-card','check-card','reflect-card'].forEach(function(id){ $(id).hidden = true; });
-    $('improve').hidden = true; $('improve-list').innerHTML='';
-    ['r1','r2','r3'].forEach(function(id){ $(id).value=''; });
-    Array.prototype.forEach.call(document.querySelectorAll('#checks input'), function(c){ c.checked = false; });
-    updateCheckStatus();
-    setStatus('');
-    window.scrollTo({top:0, behavior:'smooth'});
-    var first = document.querySelector('input[name="age"]'); if (first) first.focus({preventScroll:true});
+    Object.keys(state).forEach(function(g){ state[g] = null; });
+    Object.keys(txt).forEach(function(k){ txt[k] = ''; inputs[k].value = ''; });
+    $('status').textContent = ''; $('status').className = 'status';
+    update();
   });
 
-  /* ---------- Improve My Prompt (checks the four RTCF parts + learning rules) ---------- */
-  // Each test looks for key words in English, Bahasa Melayu and Chinese.
-  var CHECKS = [
-    {id:'R', test:/\b(tutor|teacher|coach|mentor|buddy|quiz master|game designer)\b|cikgu|guru|pembimbing|jurulatih|pengacara|pereka|老师|家教|导师|教练|辅导|伙伴|主持人|设计师/i},
-    {id:'T', test:/\b(i want to|help me|my goal|i need to|i am preparing|quiz me|practise)\b|saya mahu|bantu saya|tolong saya|saya perlu|matlamat|我想|帮我|我需要|请帮|我的目标|我要/i},
-    {id:'C', test:new RegExp((/\b(subject|topic|about|because|question)\b|subjek|topik|tentang|kerana|soalan|科目|主题|关于|因为|问题/i).source + '|' + (/\b(aged?\s*\d|\d+\s*(years|yrs)|grade|level|beginner)\b|\b\d{1,2}\s*[–-]\s*\d{1,2}\b|umur|tahun|tahap|peringkat|岁|年龄|年级|程度|水平|难度|初学/i).source, 'i')},
-    {id:'F', test:/\b(step|steps|example|examples|analogy|story|diagram|diagrams|table|tables|visual|visually|simple words|numbered|bullet|short|challenging)\b|langkah|contoh|analogi|cerita|rajah|jadual|visual|ringkas|bernombor|mencabar|步骤|例子|比喻|故事|图|表格|简单|编号|简短|有挑战性/i},
-    {id:'think', test:/\b(hint|one question at a time|ask me|let me try|try first|wait for my|quiz me|guide me)\b|petunjuk|satu soalan|tanya saya|biar saya cuba|tunggu jawapan|kuiz|bimbing|提示|一次问我一个|一次一个问题|问我|让我先试|让我尝试|等我回答|测验|考我|引导/i},
-    {id:'honest', test:/\b(not sure|honest|reliable|sources?|guess|double-?check)\b|tidak pasti|jujur|boleh dipercayai|sumber|meneka|semak semula|不确定|诚实|可靠|来源|乱猜|核对/i},
-    {id:'fair', test:/\b(assessed|assignment|hand in|do not complete|don.t complete|do it for me|cheat)\b|dinilai|tugasan|jangan siapkan|jangan buat untuk|menipu|评分|作业|交上去|不要替我|作弊/i}
-  ];
-  var CJK = /[㐀-鿿]/;
-  function improve(){
-    if (needPrompt()) return;
-    var T = I18N[LANG], text = getPrompt(), len = clean(text).length;
-    var good = [], add = [], other = [];
-    CHECKS.forEach(function(c){ (c.test.test(text) ? good : add).push(c.id); });
-    var topic = clean($('topic').value);
-    var shortTopic = CJK.test(topic) ? topic.length < 6 : topic.split(' ').length < 3;
-    if (topic && shortTopic && text.indexOf(topic) > -1) other.push(U('o_short',{t:topic}));
-    if (/(\b(it|this|that|stuff|things?)|\bini|\bitu|\bbenda|这个|那个|东西)\s*[.?!。？！]?$/i.test(topic)) other.push(U('o_vague'));
-    if (len < 250) other.push(U('o_shortP'));
-    if (len > 2500) other.push(U('o_longP'));
-    if (!/\d+\s*(words|sentences|questions|minutes?|perkataan|ayat|soalan|minit|字|句|个问题|分钟)|one question|satu soalan|一次一个|一次问我|short|ringkas|简短/i.test(text)) other.push(U('o_limit'));
-
-    var list = $('improve-list'); list.innerHTML = '';
-    setBi($('improve-h'), (add.length||other.length) ? U('imp_h') : U('imp_perfect'));
-    add.forEach(function(id){
-      var tip = T.tips[id], addText = I18N.en.p.tipText[id];
-      var li = document.createElement('li');
-      var sp = document.createElement('span'); setBi(sp, tip[1] + SEP + ZH.tips[id][1], false, '💡 ');
-      var b = document.createElement('button'); b.type='button'; setBi(b, U('add')); b.firstChild.className='bi btnbi';
-      b.setAttribute('aria-label', E(U('addAria'))+addText);
-      b.addEventListener('click', function(){
-        var ta = $('output'); ta.value = ta.value.replace(/\s+$/,'') + '\n' + addText;
-        li.remove(); setStatus(U('s_added'), 'ok'); ta.focus();
-      });
-      li.appendChild(sp); li.appendChild(b); list.appendChild(li);
-    });
-    other.forEach(function(m){ var li=document.createElement('li'); var sp=document.createElement('span'); setBi(sp, m, false, '💡 '); li.appendChild(sp); list.appendChild(li); });
-    good.forEach(function(id){ var li=document.createElement('li'); li.className='good'; var sp=document.createElement('span'); setBi(sp, T.tips[id][0] + SEP + ZH.tips[id][0], false, '✅ '); li.appendChild(sp); list.appendChild(li); });
-    var box = $('improve'); box.hidden = false; box.focus(); box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  /* ---------- Try in Gemini / ChatGPT (opens a new tab with the prompt in the link, and copies it as a backup) ---------- */
+  function tryIn(name, base){
+    return async function(){
+      if (this.disabled) return;
+      var text = cleanPrompt();
+      var p = copyText(text);                                   // start copying inside the click
+      var w = window.open(base + encodeURIComponent(text), '_blank');
+      if (w){ try{ w.opener = null; }catch(e){} }
+      var ok = await p;
+      if (!w){
+        say('Your browser blocked the new tab. Open ' + name + ' yourself' + (ok ? ' and paste your prompt (it is already copied).' : '.'),
+            '浏览器阻止了新标签页。请自己打开 ' + name + (ok ? '，并粘贴提示词（已经复制好了）。' : '。'), 'warn');
+        if (!ok) selectForManualCopy(text);
+        return;
+      }
+      if (ok) say('Opened ' + name + ' and copied your prompt. If the box is empty, paste it (Ctrl/Cmd+V), then press send.',
+                  '已打开 ' + name + ' 并复制了提示词。如果输入框是空的，请粘贴（Ctrl/Cmd+V），再按发送。', 'ok');
+      else selectForManualCopy(text);
+    };
   }
-  $('btn-improve').addEventListener('click', improve);
+  $('btn-gemini').addEventListener('click', tryIn('Gemini', 'https://gemini.google.com/app?query='));
+  $('btn-chatgpt').addEventListener('click', tryIn('ChatGPT', 'https://chatgpt.com/?q='));
 
-  /* ---------- Checklist status ---------- */
-  function updateCheckStatus(){
-    var n = document.querySelectorAll('#checks input:checked').length, s = $('check-status');
-    if (n === CHECK_COUNT){ setBi(s, U('c_all')); s.className='status ok'; }
-    else { setBi(s, U('c_n',{n:n,t:CHECK_COUNT})); s.className='status'; }
-  }
+  /* ---------- Static button labels ---------- */
+  labelCopy();
+  $('btn-reset').appendChild(bi('Reset', '清空重来'));
+  $('btn-gemini').appendChild(bi('Try in Gemini', '在 Gemini 里试试'));
+  $('btn-chatgpt').appendChild(bi('Try in ChatGPT', '在 ChatGPT 里试试'));
 
-  /* ---------- Start ---------- */
-  applyLang();
+  update();
 })();
 </script>
 </body>
